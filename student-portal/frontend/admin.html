@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Console - Modern Group of Education</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              DEFAULT: '#1a2e5a',
+              light: '#2a447e',
+              dark: '#0f1c3a',
+            },
+            gold: {
+              DEFAULT: '#c9a227',
+              light: '#dfb83c',
+              dark: '#a68218',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body class="bg-[#f3f5f9] dark:bg-[#0f172a] text-[#1e293b] dark:text-[#f8fafc] min-h-screen flex transition-colors duration-300 font-sans">
+
+  <!-- Mobile Sidebar Overlay -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/40 z-30 hidden md:hidden backdrop-blur-sm"></div>
+
+  <!-- Sidebar Navigation -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-navy text-white z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col border-r-4 border-gold">
+    <!-- Brand header -->
+    <div class="p-6 border-b border-white/10 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="images/logo.png" alt="Logo" class="h-12 w-auto object-contain">
+        <div>
+          <h1 class="font-bold text-sm tracking-wide leading-none">Modern Group</h1>
+          <span class="text-[10px] text-slate-300 uppercase tracking-widest font-semibold">Admin Panel</span>
+        </div>
+      </div>
+      <button id="close-sidebar" class="md:hidden text-slate-300 hover:text-white cursor-pointer">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Nav Links -->
+    <nav class="flex-grow px-4 py-4 space-y-1">
+      <button data-tab="dashboard" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer active text-left">
+        <i class="fa-solid fa-chart-line text-gold w-5"></i> Dashboard Stats
+      </button>
+      <button data-tab="students" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer text-left">
+        <i class="fa-solid fa-user-graduate text-gold w-5"></i> Manage Students
+      </button>
+      <button data-tab="teachers" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer text-left">
+        <i class="fa-solid fa-chalkboard-user text-gold w-5"></i> Manage Teachers
+      </button>
+      <button data-tab="notices" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer text-left">
+        <i class="fa-solid fa-bullhorn text-gold w-5"></i> Manage Notices
+      </button>
+      <button data-tab="timetable" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer text-left">
+        <i class="fa-solid fa-clock text-gold w-5"></i> Manage Timetable
+      </button>
+      <button data-tab="fees" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer text-left">
+        <i class="fa-solid fa-file-invoice-dollar text-gold w-5"></i> Manage Fees
+      </button>
+    </nav>
+
+    <!-- Logout -->
+    <div class="p-4 border-t border-white/10">
+      <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold bg-red-600/20 hover:bg-red-600/40 text-red-300 hover:text-white transition-colors cursor-pointer text-left">
+        <i class="fa-solid fa-right-from-bracket"></i> Log Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main View Area -->
+  <div class="flex-grow md:pl-64 min-h-screen flex flex-col">
+    <!-- Topbar -->
+    <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between sticky top-0 z-20 transition-colors">
+      <div class="flex items-center gap-3">
+        <button id="open-sidebar" class="md:hidden text-slate-600 dark:text-slate-300 hover:text-navy dark:hover:text-gold cursor-pointer">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+        <h2 id="section-title" class="font-bold text-xl text-navy dark:text-gold">Dashboard Statistics</h2>
+      </div>
+
+      <div class="flex items-center gap-4">
+
+
+        <div class="flex items-center gap-2 border-l pl-4 border-slate-200 dark:border-slate-800">
+          <div class="w-9 h-9 bg-navy text-white rounded-full flex items-center justify-center font-bold object-cover border border-gold">
+            A
+          </div>
+          <div class="hidden sm:block text-left">
+            <p id="user-display-name" class="text-sm font-semibold leading-none">Admin</p>
+            <span class="text-[10px] text-slate-500 dark:text-slate-400">Super Administrator</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-6 space-y-6">
+
+      <!-- ================= 1. DASHBOARD OVERVIEW ================= -->
+      <section id="dashboard-section" class="content-section space-y-6">
+        <!-- Stats Widgets -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 transition-colors shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl shrink-0">
+              <i class="fa-solid fa-user-graduate"></i>
+            </div>
+            <div>
+              <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Enrolled Students</span>
+              <h4 id="stat-students" class="text-2xl font-extrabold text-slate-800 dark:text-slate-150">0</h4>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 transition-colors shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xl shrink-0">
+              <i class="fa-solid fa-chalkboard-user"></i>
+            </div>
+            <div>
+              <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Active Teachers</span>
+              <h4 id="stat-teachers" class="text-2xl font-extrabold text-slate-800 dark:text-slate-150">0</h4>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 transition-colors shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 flex items-center justify-center text-xl shrink-0">
+              <i class="fa-solid fa-indian-rupee-sign"></i>
+            </div>
+            <div>
+              <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Tuition Fees Collected</span>
+              <h4 id="stat-fees" class="text-2xl font-extrabold text-slate-800 dark:text-slate-150">₹0.00</h4>
+            </div>
+          </div>
+
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 transition-colors shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl shrink-0">
+              <i class="fa-solid fa-calendar-days"></i>
+            </div>
+            <div>
+              <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Average Attendance</span>
+              <h4 id="stat-attendance" class="text-2xl font-extrabold text-slate-800 dark:text-slate-150">0%</h4>
+            </div>
+          </div>
+        </div>
+
+        <!-- School info section -->
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 transition-colors shadow-sm space-y-4">
+          <h4 class="text-navy dark:text-gold font-bold text-base"><i class="fa-solid fa-school-flag mr-2 text-gold"></i> Institutions Directory</h4>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="admin-institutions-list">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2. MANAGE STUDENTS ================= -->
+      <section id="students-section" class="content-section hidden space-y-6">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 transition-colors shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-3 border-slate-100 dark:border-slate-850">
+            <div class="flex items-center gap-3">
+              <h4 class="text-navy dark:text-gold font-bold text-base"><i class="fa-solid fa-user-graduate mr-2 text-gold"></i> Students Database</h4>
+              <select id="student-campus-filter" class="text-xs bg-slate-50 border border-slate-200 rounded-lg py-1 px-2.5 focus:outline-none focus:ring-1 focus:ring-navy dark:bg-slate-800 dark:border-slate-700">
+                <option value="all">All Schools</option>
+                <option value="1">New Modern Sr. Sec. School</option>
+                <option value="2">Modern English School</option>
+                <option value="3">Modern Girls College</option>
+              </select>
+            </div>
+            <button onclick="openStudentModal()" class="px-4 py-2 bg-navy hover:bg-navy-light text-white dark:bg-gold dark:text-navy dark:hover:bg-gold-light font-bold rounded-lg text-xs transition-colors cursor-pointer">
+              <i class="fa-solid fa-plus mr-1"></i> Register Student
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold">
+                  <th class="py-2.5 px-4 w-20">Roll No</th>
+                  <th class="py-2.5 px-4">Student Name</th>
+                  <th class="py-2.5 px-4">School / Campus</th>
+                  <th class="py-2.5 px-4">Email</th>
+                  <th class="py-2.5 px-4 text-center">Class / Section</th>
+                  <th class="py-2.5 px-4">Father Name</th>
+                  <th class="py-2.5 px-4 text-center w-36">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-students-table" class="divide-y divide-slate-100 dark:divide-slate-800">
+                <!-- Data rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 3. MANAGE TEACHERS ================= -->
+      <section id="teachers-section" class="content-section hidden space-y-6">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 transition-colors shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-3 border-slate-100 dark:border-slate-850">
+            <div class="flex items-center gap-3">
+              <h4 class="text-navy dark:text-gold font-bold text-base"><i class="fa-solid fa-chalkboard-user mr-2 text-gold"></i> Teachers Database</h4>
+              <select id="teacher-campus-filter" class="text-xs bg-slate-50 border border-slate-200 rounded-lg py-1 px-2.5 focus:outline-none focus:ring-1 focus:ring-navy dark:bg-slate-800 dark:border-slate-700">
+                <option value="all">All Schools</option>
+                <option value="1">New Modern Sr. Sec. School</option>
+                <option value="2">Modern English School</option>
+                <option value="3">Modern Girls College</option>
+              </select>
+            </div>
+            <button onclick="openTeacherModal()" class="px-4 py-2 bg-navy hover:bg-navy-light text-white dark:bg-gold dark:text-navy dark:hover:bg-gold-light font-bold rounded-lg text-xs transition-colors cursor-pointer">
+              <i class="fa-solid fa-plus mr-1"></i> Add Faculty
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold">
+                  <th class="py-2.5 px-4">Teacher Name</th>
+                  <th class="py-2.5 px-4">School / Campus</th>
+                  <th class="py-2.5 px-4">Email</th>
+                  <th class="py-2.5 px-4 text-center">Department Subject</th>
+                  <th class="py-2.5 px-4">Assigned Class-Sections</th>
+                  <th class="py-2.5 px-4 text-center w-36">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-teachers-table" class="divide-y divide-slate-100 dark:divide-slate-800">
+                <!-- Data rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 4. MANAGE NOTICES ================= -->
+      <section id="notices-section" class="content-section hidden space-y-6">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 transition-colors shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-3 border-slate-100 dark:border-slate-850">
+            <h4 class="text-navy dark:text-gold font-bold text-base"><i class="fa-solid fa-bullhorn mr-2 text-gold"></i> Bulletins & Notices</h4>
+            <button onclick="openNoticeModal()" class="px-4 py-2 bg-navy hover:bg-navy-light text-white dark:bg-gold dark:text-navy dark:hover:bg-gold-light font-bold rounded-lg text-xs transition-colors cursor-pointer">
+              <i class="fa-solid fa-plus mr-1"></i> Post Announcement
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold">
+                  <th class="py-2.5 px-4">Title</th>
+                  <th class="py-2.5 px-4">Category</th>
+                  <th class="py-2.5 px-4">Content Summary</th>
+                  <th class="py-2.5 px-4">Posted Date</th>
+                  <th class="py-2.5 px-4 text-center w-36">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-notices-table" class="divide-y divide-slate-100 dark:divide-slate-800">
+                <!-- Data rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 5. MANAGE TIMETABLE ================= -->
+      <section id="timetable-section" class="content-section hidden space-y-6">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 transition-colors shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-3 border-slate-100 dark:border-slate-850">
+            <h4 class="text-navy dark:text-gold font-bold text-base"><i class="fa-solid fa-calendar-days mr-2 text-gold"></i> School Schedules</h4>
+            <button onclick="openTimetableModal()" class="px-4 py-2 bg-navy hover:bg-navy-light text-white dark:bg-gold dark:text-navy dark:hover:bg-gold-light font-bold rounded-lg text-xs transition-colors cursor-pointer">
+              <i class="fa-solid fa-plus mr-1"></i> Add Timetable Slot
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold">
+                  <th class="py-2.5 px-4">Class</th>
+                  <th class="py-2.5 px-4">Day</th>
+                  <th class="py-2.5 px-4">Subject</th>
+                  <th class="py-2.5 px-4">Time Slot</th>
+                  <th class="py-2.5 px-4">Teacher Assigned</th>
+                  <th class="py-2.5 px-4 text-center w-28">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-timetable-table" class="divide-y divide-slate-100 dark:divide-slate-800">
+                <!-- Data rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 6. MANAGE FEES ================= -->
+      <section id="fees-section" class="content-section hidden space-y-6">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 transition-colors shadow-sm space-y-4">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-3 border-slate-100 dark:border-slate-850">
+            <h4 class="text-navy dark:text-gold font-bold text-base"><i class="fa-solid fa-file-invoice-dollar mr-2 text-gold"></i> Student Billing Records</h4>
+            <button onclick="openFeeModal()" class="px-4 py-2 bg-navy hover:bg-navy-light text-white dark:bg-gold dark:text-navy dark:hover:bg-gold-light font-bold rounded-lg text-xs transition-colors cursor-pointer">
+              <i class="fa-solid fa-plus mr-1"></i> Add Fee Ledger
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold">
+                  <th class="py-2.5 px-4">Receipt No</th>
+                  <th class="py-2.5 px-4">Student Name (Class)</th>
+                  <th class="py-2.5 px-4">Amount</th>
+                  <th class="py-2.5 px-4">Due Date</th>
+                  <th class="py-2.5 px-4 text-center">Status</th>
+                  <th class="py-2.5 px-4 text-center w-36">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admin-fees-table" class="divide-y divide-slate-100 dark:divide-slate-800">
+                <!-- Data rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-6 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800/50 mt-auto transition-colors font-sans">
+      <p>© 2026 Modern Group of Education, Kuchaman City, Rajasthan</p>
+    </footer>
+  </div>
+
+  <!-- ================= NATIVE FORM DIALOGS ================= -->
+
+  <!-- Student Dialog -->
+  <dialog id="student-modal" closedby="any" class="bg-transparent backdrop:bg-slate-900/60 backdrop:backdrop-blur-sm p-4 w-full max-w-2xl focus:outline-none">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+      <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-navy text-white">
+        <h3 id="student-modal-title" class="font-bold text-lg">Register Student</h3>
+        <button onclick="document.getElementById('student-modal').close()" class="text-slate-300 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="student-form" class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+        <input type="hidden" id="student-form-id">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Student Name</label>
+            <input type="text" id="stud-name" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Email Address</label>
+            <input type="email" id="stud-email" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Password (blank if unchanged)</label>
+            <input type="password" id="stud-password" class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Institution</label>
+            <select id="stud-inst" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+              <!-- Populated by JS -->
+            </select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Roll No</label>
+            <input type="text" id="stud-roll" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Class</label>
+            <select id="stud-class" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+              <option value="" disabled selected>Select Class</option>
+              <option value="Nursery">Nursery</option>
+              <option value="LKG">LKG</option>
+              <option value="UKG">UKG</option>
+              <option value="1st">1st</option>
+              <option value="2nd">2nd</option>
+              <option value="3rd">3rd</option>
+              <option value="4th">4th</option>
+              <option value="5th">5th</option>
+              <option value="6th">6th</option>
+              <option value="7th">7th</option>
+              <option value="8th">8th</option>
+              <option value="9th">9th</option>
+              <option value="10th">10th</option>
+              <option value="11th">11th</option>
+              <option value="12th">12th</option>
+            </select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Section</label>
+            <input type="text" id="stud-section" placeholder="A" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Date of Birth</label>
+            <input type="date" id="stud-dob" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Father's Name</label>
+            <input type="text" id="stud-father" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Phone</label>
+            <input type="text" id="stud-phone" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+          </div>
+          <div class="col-span-2 space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Residential Address</label>
+            <textarea id="stud-address" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800" rows="2"></textarea>
+          </div>
+          <div class="col-span-2 space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Photo URL</label>
+            <input type="text" id="stud-photo" class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+          </div>
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-navy hover:bg-navy-light text-white dark:bg-gold dark:text-navy dark:hover:bg-gold-light font-bold rounded-lg transition-colors cursor-pointer mt-4">
+          Save Student Info
+        </button>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Teacher Dialog -->
+  <dialog id="teacher-modal" closedby="any" class="bg-transparent backdrop:bg-slate-900/60 backdrop:backdrop-blur-sm p-4 w-full max-w-lg focus:outline-none">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+      <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-navy text-white">
+        <h3 id="teacher-modal-title" class="font-bold text-lg">Add Faculty Member</h3>
+        <button onclick="document.getElementById('teacher-modal').close()" class="text-slate-300 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="teacher-form" class="p-6 space-y-4">
+        <input type="hidden" id="teacher-form-id">
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Faculty Name</label>
+          <input type="text" id="teach-name" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Email Address</label>
+          <input type="email" id="teach-email" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Password (blank if unchanged)</label>
+          <input type="password" id="teach-password" class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Institution</label>
+          <select id="teach-inst" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+            <!-- Populated via JS -->
+          </select>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Subject Department</label>
+          <input type="text" id="teach-subject" placeholder="Mathematics" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Assigned Class-Sections (comma separated)</label>
+          <input type="text" id="teach-classes" placeholder="11th-A,12th-A" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-navy hover:bg-navy-light text-white dark:bg-gold dark:text-navy dark:hover:bg-gold-light font-bold rounded-lg transition-colors cursor-pointer mt-4">
+          Save Faculty Info
+        </button>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Notice Dialog -->
+  <dialog id="notice-modal" closedby="any" class="bg-transparent backdrop:bg-slate-900/60 backdrop:backdrop-blur-sm p-4 w-full max-w-lg focus:outline-none">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+      <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-navy text-white">
+        <h3 id="notice-modal-title" class="font-bold text-lg">Post Announcement</h3>
+        <button onclick="document.getElementById('notice-modal').close()" class="text-slate-300 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="notice-form" class="p-6 space-y-4">
+        <input type="hidden" id="notice-form-id">
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Announcement Title</label>
+          <input type="text" id="not-title" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Notice Category</label>
+          <select id="not-category" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+            <option value="Academics">Academics</option>
+            <option value="Events">Events</option>
+            <option value="Fees">Fees</option>
+            <option value="General">General</option>
+          </select>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Notice Content Description</label>
+          <textarea id="not-content" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800" rows="5"></textarea>
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-navy hover:bg-navy-light text-white dark:bg-gold dark:text-navy dark:hover:bg-gold-light font-bold rounded-lg transition-colors cursor-pointer mt-4">
+          Save Announcement
+        </button>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Timetable Dialog -->
+  <dialog id="timetable-modal" closedby="any" class="bg-transparent backdrop:bg-slate-900/60 backdrop:backdrop-blur-sm p-4 w-full max-w-lg focus:outline-none">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+      <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-navy text-white">
+        <h3 id="timetable-modal-title" class="font-bold text-lg">Add Class Slot</h3>
+        <button onclick="document.getElementById('timetable-modal').close()" class="text-slate-300 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="timetable-form" class="p-6 space-y-4">
+        <input type="hidden" id="timetable-form-id">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Class (e.g. 11th)</label>
+            <select id="time-class" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+              <option value="" disabled selected>Select Class</option>
+              <option value="Nursery">Nursery</option>
+              <option value="LKG">LKG</option>
+              <option value="UKG">UKG</option>
+              <option value="1st">1st</option>
+              <option value="2nd">2nd</option>
+              <option value="3rd">3rd</option>
+              <option value="4th">4th</option>
+              <option value="5th">5th</option>
+              <option value="6th">6th</option>
+              <option value="7th">7th</option>
+              <option value="8th">8th</option>
+              <option value="9th">9th</option>
+              <option value="10th">10th</option>
+              <option value="11th">11th</option>
+              <option value="12th">12th</option>
+            </select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Section (e.g. A)</label>
+            <input type="text" id="time-section" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+          </div>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Day of Week</label>
+          <select id="time-day" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+          </select>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Subject</label>
+          <input type="text" id="time-subject" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Start Time</label>
+            <input type="time" id="time-start" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">End Time</label>
+            <input type="time" id="time-end" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+          </div>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Teacher ID (Optional)</label>
+          <select id="time-teacher" class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+            <!-- Populated via JS -->
+          </select>
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-navy hover:bg-navy-light text-white dark:bg-gold dark:text-navy dark:hover:bg-gold-light font-bold rounded-lg transition-colors cursor-pointer mt-4">
+          Save Slot
+        </button>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Fee Dialog -->
+  <dialog id="fee-modal" closedby="any" class="bg-transparent backdrop:bg-slate-900/60 backdrop:backdrop-blur-sm p-4 w-full max-w-lg focus:outline-none">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+      <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-navy text-white">
+        <h3 id="fee-modal-title" class="font-bold text-lg">Add Student Fee Record</h3>
+        <button onclick="document.getElementById('fee-modal').close()" class="text-slate-300 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="fee-form" class="p-6 space-y-4">
+        <input type="hidden" id="fee-form-id">
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Select Student</label>
+          <select id="fee-student" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+            <!-- Populated via JS -->
+          </select>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Amount (₹)</label>
+          <input type="number" id="fee-amount" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Due Date</label>
+          <input type="date" id="fee-due" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Payment Status</label>
+          <select id="fee-status" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+            <option value="unpaid">Unpaid</option>
+            <option value="paid">Paid</option>
+            <option value="partial">Partial</option>
+          </select>
+        </div>
+        <!-- Fields only showing during edit/paid status optionally -->
+        <div id="fee-paid-fields" class="space-y-4 hidden border-t pt-4">
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Paid Date</label>
+            <input type="date" id="fee-paid-date" class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Receipt No</label>
+            <input type="text" id="fee-receipt" placeholder="REC-YYYYMMDD-XX" class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+          </div>
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-navy hover:bg-navy-light text-white dark:bg-gold dark:text-navy dark:hover:bg-gold-light font-bold rounded-lg transition-colors cursor-pointer mt-4">
+          Save Fee Record
+        </button>
+      </form>
+    </div>
+  </dialog>
+
+  <script src="js/auth.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

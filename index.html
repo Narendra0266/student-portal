@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A comprehensive, highly interactive student portal. View grades, attendance, profile details, submit assignments, and manage school fees.">
+  <title>Apex High School - Student Portal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- --- Common SVG Defs for Brand Gradients --- -->
+  <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#6366f1" />
+        <stop offset="100%" stop-color="#3b82f6" />
+      </linearGradient>
+      <linearGradient id="radialGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#10b981" />
+        <stop offset="100%" stop-color="#059669" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- --- 1. Login Screen Overlay --- -->
+  <div id="login-screen" class="login-screen">
+    <div class="glass-panel login-box">
+      <div class="login-logo">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
+          <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+        </svg>
+        <span>Apex High</span>
+      </div>
+      <h2>Student Portal Login</h2>
+      <p>Log in to access your student records & classes</p>
+      
+      <div id="login-error" class="login-error"></div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label for="student-id">Student ID</label>
+          <div class="input-wrapper">
+            <input type="text" id="student-id" placeholder="STU2026001" value="STU2026001" required>
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <input type="password" id="password" placeholder="••••••••" value="password" required>
+            <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+          </div>
+        </div>
+        <button type="submit" class="btn-login">Access Portal</button>
+      </form>
+      <div class="login-footer">
+        Use Mock ID: <code>STU2026001</code> to access
+      </div>
+    </div>
+  </div>
+
+  <!-- --- 2. Main Portal Shell --- -->
+  <div id="app-container" class="app-container" style="display: none;">
+    
+    <!-- Backdrop overlay for mobile drawer -->
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+    
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar">
+      <div class="sidebar-brand">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
+          <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+        </svg>
+        <h1>Apex High</h1>
+      </div>
+      <ul class="nav-links">
+        <li class="active">
+          <a href="#dashboard" data-tab="dashboard">
+            <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+            Dashboard
+          </a>
+        </li>
+        <li>
+          <a href="#academics" data-tab="academics">
+            <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>
+            Academics
+          </a>
+        </li>
+        <li>
+          <a href="#profile" data-tab="profile">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            Student Profile
+          </a>
+        </li>
+        <li>
+          <a href="#assignments" data-tab="assignments">
+            <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            Assignments
+          </a>
+        </li>
+        <li>
+          <a href="#billing" data-tab="billing">
+            <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+            Fees & Billing
+          </a>
+        </li>
+      </ul>
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="btn-logout">
+          <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+          Log Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main>
+      
+      <!-- Top header bar -->
+      <header>
+        <div style="display:flex; align-items:center; gap: 16px;">
+          <!-- Mobile sidebar toggle -->
+          <button id="mobile-toggle" class="mobile-nav-toggle">
+            <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+          </button>
+          <div class="header-left">
+            <h2 id="section-title">Dashboard</h2>
+            <p id="section-subtitle">Welcome back, Aarav Sharma</p>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="search-bar">
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <input type="text" placeholder="Search lessons, tests...">
+          </div>
+          <button class="icon-button" aria-label="Notifications">
+            <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+            <span class="notification-badge"></span>
+          </button>
+          <div class="user-badge" id="header-user-badge">
+            <img src="" alt="Avatar">
+            <span>Aarav</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dynamic Sections (Single Page App panels) -->
+
+      <!-- --- 2.1 Dashboard Section --- -->
+      <section id="dashboard-section" class="content-section active">
+        <!-- Welcome banner -->
+        <div class="glass-panel welcome-banner">
+          <div class="welcome-text">
+            <h3 style="font-size: 24px; font-family: var(--font-heading); font-weight: 700; margin-bottom: 6px;">Apex High School Student Portal</h3>
+            <p>Welcome, <span id="banner-student-name" style="font-weight: 600;"></span>. You belong to <span id="banner-student-grade"></span>.</p>
+          </div>
+          <div class="banner-stats">
+            <div class="banner-stat-item">
+              <span class="label">Roll No</span>
+              <span class="val" id="banner-roll">--</span>
+            </div>
+            <div class="banner-stat-item">
+              <span class="label">Student ID</span>
+              <span class="val" id="banner-id" style="color: var(--primary);">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric widgets grid -->
+        <div class="dashboard-grid">
+          <div class="glass-panel stats-card">
+            <div class="stats-icon primary">
+              <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>
+            </div>
+            <div class="stats-details">
+              <h4 id="dash-gpa">--</h4>
+              <p>Current GPA</p>
+            </div>
+          </div>
+
+          <div class="glass-panel stats-card">
+            <div class="stats-icon success">
+              <svg viewBox="0 0 24 24"><path d="M19.3 16.9c.4-.7.7-1.5.7-2.4 0-2.8-2.2-5-5-5s-5 2.2-5 5 2.2 5 5 5c.9 0 1.7-.3 2.4-.7l3.2 3.2 1.4-1.4-3.4-3.7zM15 17.5c-1.4 0-2.5-1.1-2.5-2.5s1.1-2.5 2.5-2.5 2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5z M12 2H2v8h10V2z"/></svg>
+            </div>
+            <div class="stats-details">
+              <h4 id="dash-attendance">--</h4>
+              <p>Attendance</p>
+            </div>
+          </div>
+
+          <div class="glass-panel stats-card">
+            <div class="stats-icon warning">
+              <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1z"/></svg>
+            </div>
+            <div class="stats-details">
+              <h4 id="dash-assignments">--</h4>
+              <p>Assignments Due</p>
+            </div>
+          </div>
+
+          <div class="glass-panel stats-card">
+            <div class="stats-icon danger">
+              <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9z"/></svg>
+            </div>
+            <div class="stats-details">
+              <h4 id="dash-fees">--</h4>
+              <p>Pending Fees</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Multi column visuals -->
+        <div class="two-column-layout">
+          <!-- Academic Chart -->
+          <div class="glass-panel chart-card">
+            <div class="card-header">
+              <h3>Academic Performance Trend</h3>
+              <div class="chart-legend">
+                <div class="legend-item primary"><span></span>GPA Over Time</div>
+              </div>
+            </div>
+            <div class="svg-chart-container">
+              <svg id="gpa-chart" viewBox="0 0 500 200" preserveAspectRatio="none">
+                <!-- SVG dynamically drawn via app.js -->
+              </svg>
+            </div>
+          </div>
+
+          <!-- Schedule/Timetable widget -->
+          <div class="glass-panel timetable-card">
+            <div class="card-header">
+              <h3 id="timetable-day-title">Today's Timetable</h3>
+              <svg style="width:20px; height:20px; fill:var(--text-muted);" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+            </div>
+            <div id="dash-timetable">
+              <!-- Timetable events render here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Announcements feed -->
+        <div class="glass-panel announcements-card">
+          <div class="card-header">
+            <h3>School Announcements</h3>
+            <svg style="width:20px; height:20px; fill:var(--text-muted);" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
+          </div>
+          <div id="dash-announcements" style="display:flex; flex-direction:column; gap:16px;">
+            <!-- Render announcements -->
+          </div>
+        </div>
+      </section>
+
+      <!-- --- 2.2 Academics Section --- -->
+      <section id="academics-section" class="content-section">
+        <!-- Overview summary -->
+        <div class="academics-stats-grid">
+          <div class="glass-panel academic-subcard">
+            <div class="radial-progress-wrapper">
+              <svg class="radial-progress-svg" width="100" height="100">
+                <circle class="radial-progress-bg" cx="50" cy="50" r="45" />
+                <circle id="acad-progress-ring" class="radial-progress-bar" cx="50" cy="50" r="45" />
+              </svg>
+              <div class="radial-progress-text" id="acad-attendance">--</div>
+            </div>
+            <div class="academic-subcard-details">
+              <h4>Overall Attendance</h4>
+              <p>Excellent attendance score. Must maintain at least 85% for exams.</p>
+            </div>
+          </div>
+
+          <div class="glass-panel academic-subcard">
+            <div class="academic-subcard-details" style="padding-left: 10px;">
+              <h4>Grade Point Average</h4>
+              <div class="highlight" id="acad-gpa">--</div>
+              <p style="margin-top: 8px;">Top 10% of class of 2026. Consistent high marks across lab exercises.</p>
+            </div>
+          </div>
+
+          <div class="glass-panel academic-subcard">
+            <div class="academic-subcard-details" style="padding-left: 10px;">
+              <h4>Academic Status</h4>
+              <div class="highlight" style="color: var(--success);">Distinction</div>
+              <p style="margin-top: 8px;">Active enrollment in Science Stream (PCME). Recommended for Olympiads.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grade Report card -->
+        <div class="glass-panel grades-view-card">
+          <div class="table-header-row">
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <h3>Report Card</h3>
+              <p style="font-size: 13px; color: var(--text-muted);">View course-by-course grades and teacher assessments</p>
+            </div>
+            <div style="display:flex; gap: 14px; align-items:center;">
+              <label for="term-selector" style="font-size: 13px; color: var(--text-muted); font-weight:500;">Select Term:</label>
+              <select id="term-selector" class="select-dropdown">
+                <!-- Populated by JS -->
+              </select>
+              <div id="term-gpa-display" style="font-size:16px; font-weight:700; color:var(--primary); font-family:var(--font-heading); padding:0 8px;">--</div>
+            </div>
+          </div>
+
+          <!-- Academic Table -->
+          <div class="data-table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Subject</th>
+                  <th>Marks Scored</th>
+                  <th>Grade</th>
+                  <th>Remarks / Assessment</th>
+                </tr>
+              </thead>
+              <tbody id="grades-table-body">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Side-by-side: Attendance details & Action transcript -->
+        <div class="two-column-layout">
+          <div class="glass-panel" style="padding:30px; display:flex; flex-direction:column; gap:24px;">
+            <h3>Attendance Breakdown by Subject</h3>
+            <div id="subject-attendance-list" style="display:flex; flex-direction:column; gap:14px;">
+              <!-- Rendered attendance metrics -->
+            </div>
+          </div>
+          
+          <div class="glass-panel" style="padding:30px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; gap:20px;">
+            <div style="background:rgba(99,102,241,0.08); border-radius:50%; width:80px; height:80px; display:flex; justify-content:center; align-items:center; color:var(--primary);">
+              <svg style="width:40px; height:40px; fill:currentColor;" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+            </div>
+            <h4>Official Grade Transcript</h4>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.5; max-width:280px;">Download an official digital copy of your grades, stamped and verified by the school administration board.</p>
+            <button id="btn-download-transcript" class="btn-download" style="width: 100%; justify-content:center;">
+              <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+              Download Academic Report Card
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- --- 2.3 Profile Section --- -->
+      <section id="profile-section" class="content-section">
+        <div class="profile-grid">
+          
+          <!-- ID Card flip side column -->
+          <div class="profile-sidebar">
+            <div class="id-card-container">
+              <div class="id-card" id="student-id-card">
+                
+                <!-- Front Side -->
+                <div class="id-card-front">
+                  <div class="id-card-header">
+                    <svg viewBox="0 0 24 24">
+                      <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
+                      <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+                    </svg>
+                    <div>
+                      <h4>Apex High School</h4>
+                      <p>Student Identity Card</p>
+                    </div>
+                  </div>
+                  <div class="id-card-photo">
+                    <img id="id-avatar" src="" alt="Avatar">
+                  </div>
+                  <div class="id-card-info">
+                    <h3 id="id-name">Aarav Sharma</h3>
+                    <div class="role">Student</div>
+                  </div>
+                  <div class="id-card-details">
+                    <div>
+                      <span class="label">ID No:</span>
+                      <span class="val" id="id-number">STU2026001</span>
+                    </div>
+                    <div>
+                      <span class="label">Grade:</span>
+                      <span class="val" id="id-grade">11th Grade</span>
+                    </div>
+                    <div>
+                      <span class="label">Roll Number:</span>
+                      <span class="val" id="id-roll">24</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Back Side -->
+                <div class="id-card-back">
+                  <div class="id-card-header">
+                    <h4 style="color: var(--primary);">Emergency Contacts</h4>
+                  </div>
+                  <div class="id-card-back-info">
+                    <div class="back-info-item">
+                      <h5>Date of Birth</h5>
+                      <p id="id-dob">August 14, 2009</p>
+                    </div>
+                    <div class="back-info-item">
+                      <h5>Blood Group</h5>
+                      <p id="id-blood">O+</p>
+                    </div>
+                    <div class="back-info-item">
+                      <h5>School Address</h5>
+                      <p style="font-size:12px; color:var(--text-muted);">Apex Campus, Outer Ring Rd, Bellandur, Bengaluru, 560103</p>
+                    </div>
+                  </div>
+                  <div class="id-card-barcode">
+                    <svg viewBox="0 0 100 30" preserveAspectRatio="none">
+                      <!-- Simulated Barcode lines -->
+                      <rect x="5" y="2" width="2" height="26" fill="currentColor"/>
+                      <rect x="9" y="2" width="4" height="26" fill="currentColor"/>
+                      <rect x="15" y="2" width="1" height="26" fill="currentColor"/>
+                      <rect x="18" y="2" width="3" height="26" fill="currentColor"/>
+                      <rect x="23" y="2" width="1" height="26" fill="currentColor"/>
+                      <rect x="26" y="2" width="4" height="26" fill="currentColor"/>
+                      <rect x="32" y="2" width="2" height="26" fill="currentColor"/>
+                      <rect x="36" y="2" width="1" height="26" fill="currentColor"/>
+                      <rect x="39" y="2" width="3" height="26" fill="currentColor"/>
+                      <rect x="44" y="2" width="4" height="26" fill="currentColor"/>
+                      <rect x="50" y="2" width="2" height="26" fill="currentColor"/>
+                      <rect x="54" y="2" width="1" height="26" fill="currentColor"/>
+                      <rect x="57" y="2" width="3" height="26" fill="currentColor"/>
+                      <rect x="62" y="2" width="2" height="26" fill="currentColor"/>
+                      <rect x="66" y="2" width="4" height="26" fill="currentColor"/>
+                      <rect x="72" y="2" width="1" height="26" fill="currentColor"/>
+                      <rect x="75" y="2" width="3" height="26" fill="currentColor"/>
+                      <rect x="80" y="2" width="2" height="26" fill="currentColor"/>
+                      <rect x="84" y="2" width="4" height="26" fill="currentColor"/>
+                      <rect x="90" y="2" width="1" height="26" fill="currentColor"/>
+                      <rect x="93" y="2" width="2" height="26" fill="currentColor"/>
+                    </svg>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <div class="id-card-hint">
+              <svg viewBox="0 0 24 24"><path d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"/></svg>
+              <span>Hover / Tap to flip ID Card</span>
+            </div>
+          </div>
+
+          <!-- Profile information panel -->
+          <div class="glass-panel profile-details-card">
+            <div>
+              <h3 class="profile-section-title">Personal Details</h3>
+              <div class="details-grid">
+                <div class="detail-item">
+                  <label>Full Name</label>
+                  <span id="prof-name">--</span>
+                </div>
+                <div class="detail-item">
+                  <label>Student Admission ID</label>
+                  <span id="prof-id" style="color:var(--primary); font-weight:600;">--</span>
+                </div>
+                <div class="detail-item">
+                  <label>Class/Grade</label>
+                  <span id="prof-grade">--</span>
+                </div>
+                <div class="detail-item">
+                  <label>Roll Number</label>
+                  <span id="prof-roll">--</span>
+                </div>
+                <div class="detail-item">
+                  <label>Date of Birth</label>
+                  <span id="prof-dob">--</span>
+                </div>
+                <div class="detail-item">
+                  <label>Blood Group</label>
+                  <span id="prof-blood">--</span>
+                </div>
+                <div class="detail-item">
+                  <label>Student Email Address</label>
+                  <span id="prof-email">--</span>
+                </div>
+                <div class="detail-item">
+                  <label>Phone Number</label>
+                  <span id="prof-phone">--</span>
+                </div>
+                <div class="detail-item full-width">
+                  <label>Residential Address</label>
+                  <span id="prof-address">--</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="profile-section-title">Guardian Information</h3>
+              <div class="details-grid">
+                <div class="detail-item">
+                  <label>Name</label>
+                  <span id="guard-name">--</span>
+                </div>
+                <div class="detail-item">
+                  <label>Relationship</label>
+                  <span id="guard-relation">--</span>
+                </div>
+                <div class="detail-item">
+                  <label>Phone Number</label>
+                  <span id="guard-phone">--</span>
+                </div>
+                <div class="detail-item">
+                  <label>Email Address</label>
+                  <span id="guard-email">--</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="profile-section-title">Emergency Medical contact</h3>
+              <div class="details-grid">
+                <div class="detail-item">
+                  <label>Contact Name</label>
+                  <span id="emerg-name">--</span>
+                </div>
+                <div class="detail-item">
+                  <label>Relationship</label>
+                  <span id="emerg-relation">--</span>
+                </div>
+                <div class="detail-item">
+                  <label>Phone Number</label>
+                  <span id="emerg-phone">--</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- --- 2.4 Assignments Section --- -->
+      <section id="assignments-section" class="content-section">
+        <div class="assignments-header-row">
+          <div class="tab-buttons">
+            <button class="tab-btn active" data-filter="all">All Assignments</button>
+            <button class="tab-btn" data-filter="pending">Pending / Overdue</button>
+            <button class="tab-btn" data-filter="submitted">Submitted</button>
+          </div>
+          <p style="font-size: 13px; color: var(--text-muted);"><strong style="color:var(--warning)">STU2026001</strong> assignments log</p>
+        </div>
+
+        <div id="assignments-list" class="assignments-list">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- --- 2.5 Billing Section --- -->
+      <section id="billing-section" class="content-section">
+        <div class="billing-grid">
+          
+          <!-- Balance Summary Column -->
+          <div class="billing-sidebar">
+            <div class="glass-panel outstanding-card">
+              <h4>Outstanding Dues</h4>
+              <div class="amount" id="bill-outstanding">--</div>
+              <p style="font-size:12px; color:var(--text-muted); line-height:1.5;">Outstanding dues must be paid before the upcoming Term 3 examination cycle begins.</p>
+              <button id="btn-trigger-payment" class="btn-pay">Pay Outstanding Dues</button>
+            </div>
+            
+            <div class="glass-panel" style="padding:24px; display:flex; flex-direction:column; gap:16px;">
+              <h4 style="font-size:14px; font-weight:600; text-transform:uppercase; color:var(--text-muted);">Payment Support</h4>
+              <p style="font-size:12px; color:var(--text-muted); line-height:1.5;">For billing corrections, refunds, or direct bank transfer slips uploads, please contact the accounts department:</p>
+              <div style="font-size:13px; font-weight:500;">
+                <p>📧 accounts@apexschool.edu</p>
+                <p style="margin-top:6px;">📞 +91 80 4992 0012</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Invoices Column -->
+          <div class="glass-panel invoices-card">
+            <h3 style="margin-bottom: 20px;">Transactions & Invoices</h3>
+            <div class="data-table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Invoice ID</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Date / Status</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="invoices-table-body">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- --- 3. Interactive Modals (Native <dialog> elements) --- -->
+
+  <!-- 3.1 Submit Homework Dialog -->
+  <dialog id="assignment-dialog" closedby="any" aria-labelledby="dialog-asm-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="dialog-asm-title">Submit Assignment</h3>
+        <button class="btn-close" onclick="document.getElementById('assignment-dialog').close()" aria-label="Close dialog">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </div>
+      <form id="submit-assignment-form">
+        <div class="modal-body">
+          <p style="font-size:13px; color:var(--text-muted);">Upload your homework files in PDF, PNG, JPG, or DOCX formats (Max 10MB).</p>
+          
+          <div class="upload-area">
+            <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+            <span>Drag and drop your file here, or <strong>browse files</strong></span>
+            <input type="file" id="file-upload-input" style="display:none;" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.txt">
+          </div>
+
+          <div class="file-info">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <svg style="width:20px; height:20px; fill:var(--primary);" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+              <span id="file-name-display" style="font-weight:500;">document.pdf</span>
+            </div>
+            <button id="btn-remove-file" class="btn-remove-file">Remove</button>
+          </div>
+
+          <div class="form-group">
+            <label for="submit-notes">Add notes for teacher (optional)</label>
+            <textarea id="submit-notes" placeholder="Type comments here..." style="width:100%; min-height:80px; padding:12px; background:rgba(15,23,42,0.6); border:1px solid var(--border-color); border-radius:10px; color:var(--text-main); font-family:var(--font-body); font-size:14px; outline:none; transition:all var(--transition-speed); resize:vertical;"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" onclick="document.getElementById('assignment-dialog').close()">Cancel</button>
+          <button type="submit" class="btn-login" style="margin:0; width:auto; padding:10px 24px;">Submit Assignment</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- 3.2 Bill Payment Dialog -->
+  <dialog id="payment-dialog" closedby="any" aria-labelledby="payment-title">
+    <div class="modal-content" id="payment-modal-content">
+      <!-- Generated dynamically in app.js to handle payment state flows -->
+    </div>
+  </dialog>
+
+  <!-- 3.3 Announcement Detail Dialog -->
+  <dialog id="announcement-dialog" closedby="any" aria-labelledby="announcement-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="announcement-title">Notice Details</h3>
+        <button class="btn-close" onclick="document.getElementById('announcement-dialog').close()" aria-label="Close dialog">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </div>
+      <div class="modal-body" style="gap: 12px;">
+        <!-- Filled dynamically in app.js -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" onclick="document.getElementById('announcement-dialog').close()">Close Notice</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Import JS layers -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parent Portal - Modern Group of Education</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              DEFAULT: '#1a2e5a',
+              light: '#2a447e',
+              dark: '#0f1c3a',
+            },
+            gold: {
+              DEFAULT: '#c9a227',
+              light: '#dfb83c',
+              dark: '#a68218',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-[#f3f5f9] text-[#1e293b] min-h-screen flex font-sans">
+
+  <!-- Mobile Sidebar Overlay -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/40 z-30 hidden md:hidden backdrop-blur-sm"></div>
+
+  <!-- Sidebar Navigation -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-navy text-white z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col border-r-4 border-gold">
+    <!-- Brand header -->
+    <div class="p-6 border-b border-white/10 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="images/logo.png" alt="Logo" class="h-12 w-auto object-contain">
+        <div>
+          <h1 class="font-bold text-sm tracking-wide leading-none">Modern Group</h1>
+          <span class="text-[10px] text-slate-300 uppercase tracking-widest font-semibold">Parent Portal</span>
+        </div>
+      </div>
+      <!-- Close drawer on mobile -->
+      <button id="close-sidebar" class="md:hidden text-slate-300 hover:text-white cursor-pointer">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Nav links -->
+    <nav class="flex-grow overflow-y-auto px-4 py-4 space-y-1">
+      <button data-tab="profile" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer active text-left">
+        <i class="fa-solid fa-user-tie text-gold w-5"></i> Child Profile
+      </button>
+      <button data-tab="attendance" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer text-left">
+        <i class="fa-solid fa-calendar-check text-gold w-5"></i> Attendance
+      </button>
+      <button data-tab="results" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer text-left">
+        <i class="fa-solid fa-square-poll-vertical text-gold w-5"></i> Results/Grades
+      </button>
+      <button data-tab="fees" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer text-left">
+        <i class="fa-solid fa-file-invoice-dollar text-gold w-5"></i> Fee Status
+      </button>
+      <button data-tab="timetable" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer text-left">
+        <i class="fa-solid fa-clock text-gold w-5"></i> Timetable
+      </button>
+    </nav>
+
+    <!-- Logout section -->
+    <div class="p-4 border-t border-white/10">
+      <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold bg-red-600/20 hover:bg-red-600/40 text-red-300 hover:text-white transition-colors cursor-pointer text-left">
+        <i class="fa-solid fa-right-from-bracket"></i> Log Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main View Area -->
+  <div class="flex-grow md:pl-64 min-h-screen flex flex-col">
+    <!-- Topbar -->
+    <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-20">
+      <div class="flex items-center gap-3">
+        <!-- Open Drawer on mobile -->
+        <button id="open-sidebar" class="md:hidden text-slate-600 hover:text-navy cursor-pointer">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+        <h2 id="section-title" class="font-bold text-xl text-navy">Parent Dashboard</h2>
+      </div>
+
+      <!-- Right controls -->
+      <div class="flex items-center gap-4">
+        <!-- User profile badge -->
+        <div class="flex items-center gap-2 border-l pl-4 border-slate-200">
+          <div class="w-9 h-9 rounded-full bg-navy text-gold flex items-center justify-center font-bold text-sm border border-gold">
+            <i class="fa-solid fa-user-group"></i>
+          </div>
+          <div class="hidden sm:block text-left">
+            <p id="user-display-name" class="text-sm font-semibold leading-none">Loading...</p>
+            <span class="text-[10px] text-slate-500 font-semibold">Parent Session</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Sections -->
+    <main class="flex-grow p-6 space-y-6">
+
+      <!-- ================= 1. PROFILE SECTION ================= -->
+      <section id="profile-section" class="content-section space-y-6">
+        <!-- Welcomer -->
+        <div class="p-6 bg-navy text-white rounded-2xl shadow-md border-b-4 border-gold relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div class="space-y-2 relative z-10">
+            <h3 class="text-2xl font-bold">Parent Portal: <span id="welcome-parent-name" class="text-gold">--</span></h3>
+            <p class="text-slate-300 text-sm">Monitoring academic progress for child: <span id="welcome-child-name" class="text-white font-bold">--</span></p>
+          </div>
+          <div class="flex gap-4 relative z-10 text-xs">
+            <div class="bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm border border-white/5">
+              <span class="block text-slate-400 font-medium">Child Roll No</span>
+              <span id="welcome-roll" class="text-base font-bold text-gold">--</span>
+            </div>
+            <div class="bg-white/10 px-4 py-2 rounded-lg backdrop-blur-sm border border-white/5">
+              <span class="block text-slate-400 font-medium">Class/Section</span>
+              <span id="welcome-class-section" class="text-base font-bold text-gold">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Identity and personal details card -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Flip Card ID -->
+          <div class="flex flex-col items-center">
+            <div class="group [perspective:1000px] w-full max-w-[320px] h-[420px]">
+              <div class="relative [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)] transition-transform duration-500 w-full h-full cursor-pointer shadow-lg rounded-2xl border border-slate-200/50">
+                
+                <!-- Front Side -->
+                <div class="absolute inset-0 [backface-visibility:hidden] bg-navy text-white rounded-2xl p-6 flex flex-col justify-between border-t-8 border-gold">
+                  <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-gold uppercase tracking-wider">Student ID Card</span>
+                    <i class="fa-solid fa-graduation-cap text-slate-300 text-lg"></i>
+                  </div>
+                  <div class="flex flex-col items-center my-4 space-y-3">
+                    <img id="id-photo" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150&auto=format&fit=crop" alt="Photo" class="w-28 h-28 rounded-full border-2 border-gold object-cover">
+                    <div class="text-center">
+                      <h4 id="id-name" class="text-lg font-bold text-gold">--</h4>
+                      <p id="id-stream" class="text-xs text-slate-300">Student Stream (PCME)</p>
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-2 gap-y-2 border-t border-white/10 pt-4 text-xs">
+                    <div>
+                      <span class="text-slate-400 block uppercase tracking-tighter">Class/Section</span>
+                      <span id="id-class-section" class="font-bold">--</span>
+                    </div>
+                    <div>
+                      <span class="text-slate-400 block uppercase tracking-tighter">Roll Number</span>
+                      <span id="id-roll" class="font-bold">--</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Back Side -->
+                <div class="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] bg-slate-900 text-white rounded-2xl p-6 flex flex-col justify-between border-t-8 border-gold">
+                  <div class="space-y-4">
+                    <h4 class="text-gold font-bold text-sm uppercase border-b border-white/10 pb-2">Emergency Details</h4>
+                    <div class="space-y-3 text-xs">
+                      <div>
+                        <span class="text-slate-400 block">Father's Name</span>
+                        <p id="id-father" class="font-semibold text-slate-200">--</p>
+                      </div>
+                      <div>
+                        <span class="text-slate-400 block">Date of Birth</span>
+                        <p id="id-dob" class="font-semibold text-slate-200">--</p>
+                      </div>
+                      <div>
+                        <span class="text-slate-400 block">Emergency Contact</span>
+                        <p id="id-phone" class="font-semibold text-slate-200">--</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-[10px] text-slate-400 text-center">
+                    Modern Group of Education, Kuchaman City
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <p class="text-xs text-slate-400 mt-3"><i class="fa-solid fa-rotate mr-1"></i> Hover/tap card to flip for emergency info</p>
+          </div>
+
+          <!-- Personal details lists -->
+          <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+            <div>
+              <h4 class="text-navy font-bold border-b border-slate-100 pb-2 mb-4 text-base"><i class="fa-solid fa-user mr-2 text-gold"></i> Child's Information</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span class="text-slate-500 block">Full Name</span>
+                  <span id="prof-name" class="font-semibold text-slate-800">--</span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block">Student Email</span>
+                  <span id="prof-email" class="font-semibold text-slate-800">--</span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block">Phone No</span>
+                  <span id="prof-phone" class="font-semibold text-slate-800">--</span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block">Residential Address</span>
+                  <span id="prof-address" class="font-semibold text-slate-800">--</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h4 class="text-navy font-bold border-b border-slate-100 pb-2 mb-4 text-base"><i class="fa-solid fa-users mr-2 text-gold"></i> Guardian & Parent Details</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span class="text-slate-500 block">Guardian / Father's Name</span>
+                  <span id="prof-guardian-name" class="font-semibold text-slate-800">--</span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block">Relation</span>
+                  <span id="prof-guardian-relation" class="font-semibold text-slate-800">--</span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block">Guardian Email</span>
+                  <span id="prof-guardian-email" class="font-semibold text-slate-800">--</span>
+                </div>
+                <div>
+                  <span class="text-slate-500 block">Guardian Phone</span>
+                  <span id="prof-guardian-phone" class="font-semibold text-slate-800">--</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2. ATTENDANCE SECTION ================= -->
+      <section id="attendance-section" class="content-section hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Stats Panel & Pie Chart -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+            <div>
+              <h4 class="text-navy font-bold text-base mb-4"><i class="fa-solid fa-circle-half-stroke mr-2 text-gold"></i> Monthly Attendance Summary</h4>
+              <div class="flex justify-center p-4">
+                <div class="w-48 h-48">
+                  <canvas id="attendance-pie-chart"></canvas>
+                </div>
+              </div>
+            </div>
+            <!-- Percentage Indicator -->
+            <div class="border-t border-slate-100 pt-4 text-center">
+              <span class="text-3xl font-extrabold text-navy" id="attendance-percent-badge">0%</span>
+              <p class="text-xs text-slate-500 mt-1">Overall Attendance for the current term</p>
+            </div>
+          </div>
+
+          <!-- Subject breakdowns -->
+          <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+            <h4 class="text-navy font-bold text-base mb-2"><i class="fa-solid fa-list-check mr-2 text-gold"></i> Subject-Wise Breakdown</h4>
+            <div id="attendance-subject-list" class="space-y-3 max-h-[360px] overflow-y-auto pr-2">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 3. RESULTS SECTION ================= -->
+      <section id="results-section" class="content-section hidden space-y-6">
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h4 class="text-navy font-bold text-lg"><i class="fa-solid fa-award mr-2 text-gold"></i> Exam Performance Report Card</h4>
+              <p class="text-xs text-slate-500">Track child's term examinations and GPA progress</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <label for="exam-selector" class="text-xs font-semibold text-slate-500">Select Exam:</label>
+              <select id="exam-selector" class="py-2 px-3 border border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy">
+                <!-- Populated by JS -->
+              </select>
+            </div>
+          </div>
+
+          <!-- Chart Area -->
+          <div class="w-full bg-slate-50 p-4 rounded-xl">
+            <div class="h-64">
+              <canvas id="marks-bar-chart"></canvas>
+            </div>
+          </div>
+
+          <!-- Result Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 text-slate-500 font-semibold">
+                  <th class="py-3 px-4">Subject</th>
+                  <th class="py-3 px-4 text-center">Marks Obtained</th>
+                  <th class="py-3 px-4 text-center">Total Marks</th>
+                  <th class="py-3 px-4 text-center">Grade</th>
+                  <th class="py-3 px-4">Feedback Remarks</th>
+                </tr>
+              </thead>
+              <tbody id="results-table-body" class="divide-y divide-slate-100">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="border-t border-slate-100 pt-4 flex justify-between items-center text-sm font-semibold">
+            <span>Overall GPA:</span>
+            <span id="results-gpa" class="text-navy font-extrabold text-base bg-gold/10 px-3 py-1 rounded-full text-gold">--</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 4. FEE STATUS SECTION ================= -->
+      <section id="fees-section" class="content-section hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Fee Card -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4 flex flex-col justify-between">
+            <div class="space-y-3 text-center lg:text-left">
+              <i class="fa-solid fa-wallet text-gold text-4xl"></i>
+              <h4 class="text-navy font-bold text-lg">Tuition & Boarding Fees</h4>
+              <p class="text-xs text-slate-500">Review detailed ledger of pending and paid invoices for this term.</p>
+            </div>
+            
+            <div class="space-y-2 border-t border-slate-100 pt-4">
+              <div class="flex justify-between text-sm">
+                <span class="text-slate-500">Outstanding:</span>
+                <span id="fee-outstanding-amt" class="font-extrabold text-red-600">₹0.00</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-slate-500">Total Paid:</span>
+                <span id="fee-paid-amt" class="font-extrabold text-green-600">₹0.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Invoices Table -->
+          <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+            <h4 class="text-navy font-bold text-base"><i class="fa-solid fa-receipt mr-2 text-gold"></i> Invoices & Receipts</h4>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-200 text-slate-500 font-semibold">
+                    <th class="py-2.5">Invoice / Receipt ID</th>
+                    <th class="py-2.5">Description</th>
+                    <th class="py-2.5">Amount</th>
+                    <th class="py-2.5">Due Date</th>
+                    <th class="py-2.5">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="fees-table-body" class="divide-y divide-slate-100 text-slate-755">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 5. TIMETABLE SECTION ================= -->
+      <section id="timetable-section" class="content-section hidden space-y-6">
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
+          <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+            <h4 class="text-navy font-bold text-lg"><i class="fa-solid fa-calendar-days mr-2 text-gold"></i> Child's Weekly Class Schedule</h4>
+            <span class="text-xs bg-navy/10 text-navy px-3 py-1.5 rounded-full font-bold uppercase tracking-wider" id="timetable-class-badge">--</span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="timetable-days-container">
+            <!-- Timetable Slots by Day via JS -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/parent.js"></script>
+</body>
+</html>

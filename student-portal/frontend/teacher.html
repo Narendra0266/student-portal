@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Dashboard - Modern Group of Education</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              DEFAULT: '#1a2e5a',
+              light: '#2a447e',
+              dark: '#0f1c3a',
+            },
+            gold: {
+              DEFAULT: '#c9a227',
+              light: '#dfb83c',
+              dark: '#a68218',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body class="bg-[#f3f5f9] dark:bg-[#0f172a] text-[#1e293b] dark:text-[#f8fafc] min-h-screen flex transition-colors duration-300 font-sans">
+
+  <!-- Mobile Sidebar Overlay -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-slate-900/40 z-30 hidden md:hidden backdrop-blur-sm"></div>
+
+  <!-- Sidebar Navigation -->
+  <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-navy text-white z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 flex flex-col border-r-4 border-gold">
+    <!-- Brand header -->
+    <div class="p-6 border-b border-white/10 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="images/logo.png" alt="Logo" class="h-12 w-auto object-contain">
+        <div>
+          <h1 class="font-bold text-sm tracking-wide leading-none">Modern Group</h1>
+          <span class="text-[10px] text-slate-300 uppercase tracking-widest font-semibold">Teacher Panel</span>
+        </div>
+      </div>
+      <button id="close-sidebar" class="md:hidden text-slate-300 hover:text-white cursor-pointer">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <!-- Nav Links -->
+    <nav class="flex-grow px-4 py-4 space-y-1">
+      <button data-tab="classes" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer active text-left">
+        <i class="fa-solid fa-chalkboard-user text-gold w-5"></i> My Classes
+      </button>
+      <button data-tab="attendance" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer text-left">
+        <i class="fa-solid fa-clipboard-user text-gold w-5"></i> Mark Attendance
+      </button>
+      <button data-tab="marks" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer text-left">
+        <i class="fa-solid fa-file-invoice text-gold w-5"></i> Record Marks
+      </button>
+      <button data-tab="assignments" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer text-left">
+        <i class="fa-solid fa-plus-minus text-gold w-5"></i> Post Assignment
+      </button>
+    </nav>
+
+    <!-- Logout -->
+    <div class="p-4 border-t border-white/10">
+      <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold bg-red-600/20 hover:bg-red-600/40 text-red-300 hover:text-white transition-colors cursor-pointer text-left">
+        <i class="fa-solid fa-right-from-bracket"></i> Log Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main View Area -->
+  <div class="flex-grow md:pl-64 min-h-screen flex flex-col">
+    <!-- Topbar -->
+    <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 flex items-center justify-between sticky top-0 z-20 transition-colors">
+      <div class="flex items-center gap-3">
+        <button id="open-sidebar" class="md:hidden text-slate-600 dark:text-slate-300 hover:text-navy dark:hover:text-gold cursor-pointer">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+        <h2 id="section-title" class="font-bold text-xl text-navy dark:text-gold">Classes & Rosters</h2>
+      </div>
+
+      <div class="flex items-center gap-4">
+
+
+        <div class="flex items-center gap-2 border-l pl-4 border-slate-200 dark:border-slate-800">
+          <div class="w-9 h-9 bg-gold text-navy rounded-full flex items-center justify-center font-bold object-cover border border-navy">
+            T
+          </div>
+          <div class="hidden sm:block text-left">
+            <p id="user-display-name" class="text-sm font-semibold leading-none">Loading...</p>
+            <span id="user-display-subject" class="text-[10px] text-slate-500 dark:text-slate-400">Teacher</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-6 space-y-6">
+
+      <!-- ================= 1. CLASSES & ROSTER ================= -->
+      <section id="classes-section" class="content-section space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="teacher-classes-grid">
+          <!-- Class cards loaded by JS -->
+        </div>
+
+        <div id="class-roster-container" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 transition-colors shadow-sm hidden space-y-4">
+          <div class="flex justify-between items-center border-b pb-3 border-slate-100 dark:border-slate-850">
+            <h4 class="text-navy dark:text-gold font-bold text-base"><i class="fa-solid fa-users mr-2 text-gold"></i> Class Roster: <span id="roster-class-name" class="text-slate-800 dark:text-slate-100">--</span></h4>
+            <span class="text-xs text-slate-500 dark:text-slate-400" id="roster-student-count">0 Students</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm border-collapse">
+              <thead>
+                <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold">
+                  <th class="py-2.5 px-4">Roll No</th>
+                  <th class="py-2.5 px-4">Student Name</th>
+                  <th class="py-2.5 px-4">Email</th>
+                  <th class="py-2.5 px-4 text-center">Class</th>
+                  <th class="py-2.5 px-4 text-center">Section</th>
+                </tr>
+              </thead>
+              <tbody id="roster-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                <!-- Roster details -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 2. MARK ATTENDANCE ================= -->
+      <section id="attendance-section" class="content-section hidden space-y-6">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 transition-colors shadow-sm space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="space-y-1.5">
+              <label for="att-class-selector" class="text-xs font-semibold text-slate-500">Select Class</label>
+              <select id="att-class-selector" class="w-full py-2 px-3 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy">
+                <!-- Populated via JS -->
+              </select>
+            </div>
+            <div class="space-y-1.5">
+              <label for="att-date" class="text-xs font-semibold text-slate-500">Attendance Date</label>
+              <input type="date" id="att-date" class="w-full py-2 px-3 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy">
+            </div>
+            <div class="flex items-end">
+              <button id="att-load-btn" class="w-full py-2 bg-navy text-white hover:bg-navy-light font-bold rounded-lg text-sm transition-colors cursor-pointer">
+                Load Attendance Roster
+              </button>
+            </div>
+          </div>
+
+          <!-- Attendance Roster Form -->
+          <form id="attendance-form" class="hidden space-y-4">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold">
+                    <th class="py-2.5 px-4 w-20">Roll No</th>
+                    <th class="py-2.5 px-4">Student Name</th>
+                    <th class="py-2.5 px-4 text-center">Present</th>
+                    <th class="py-2.5 px-4 text-center">Absent</th>
+                    <th class="py-2.5 px-4 text-center">Late</th>
+                  </tr>
+                </thead>
+                <tbody id="attendance-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                  <!-- Inputs -->
+                </tbody>
+              </table>
+            </div>
+            <button type="submit" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg text-sm transition-colors shadow-lg cursor-pointer">
+              Save Attendance Sheet
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- ================= 3. RECORD MARKS ================= -->
+      <section id="marks-section" class="content-section hidden space-y-6">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 transition-colors shadow-sm space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-1.5">
+              <label for="marks-class-selector" class="text-xs font-semibold text-slate-500">Select Class</label>
+              <select id="marks-class-selector" class="w-full py-2 px-3 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy">
+                <!-- Populated via JS -->
+              </select>
+            </div>
+            <div class="flex items-end">
+              <button id="marks-load-btn" class="w-full py-2 bg-navy text-white hover:bg-navy-light font-bold rounded-lg text-sm transition-colors cursor-pointer">
+                Load Student Gradesheet
+              </button>
+            </div>
+          </div>
+
+          <div id="marks-upload-container" class="hidden space-y-6">
+            <h4 class="text-navy dark:text-gold font-bold text-base border-b pb-2 border-slate-100 dark:border-slate-850"><i class="fa-solid fa-cloud-arrow-up mr-2 text-gold"></i> Grade Roster</h4>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold">
+                    <th class="py-2.5 px-4 w-20">Roll No</th>
+                    <th class="py-2.5 px-4">Student Name</th>
+                    <th class="py-2.5 px-4">Exam Name</th>
+                    <th class="py-2.5 px-4 text-center w-24">Marks</th>
+                    <th class="py-2.5 px-4 text-center w-24">Total</th>
+                    <th class="py-2.5 px-4 text-center w-20">Grade</th>
+                    <th class="py-2.5 px-4 text-center w-24">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="marks-table-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                  <!-- Dynamic forms -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 4. POST ASSIGNMENT ================= -->
+      <section id="assignments-section" class="content-section hidden space-y-6">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 transition-colors shadow-sm max-w-xl mx-auto space-y-6">
+          <h4 class="text-navy dark:text-gold font-bold text-lg border-b pb-3 border-slate-100 dark:border-slate-850"><i class="fa-solid fa-circle-plus mr-2 text-gold"></i> Publish New Homework</h4>
+          <form id="post-assignment-form" class="space-y-4">
+            <div class="space-y-1.5">
+              <label for="asm-title" class="text-sm font-semibold text-slate-600 dark:text-slate-400">Assignment Title</label>
+              <input type="text" id="asm-title" placeholder="e.g. Chapter 3 Calculus Assignment" required
+                class="w-full py-2.5 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-navy">
+            </div>
+
+            <div class="space-y-1.5">
+              <label for="asm-desc" class="text-sm font-semibold text-slate-600 dark:text-slate-400">Description / Instructions</label>
+              <textarea id="asm-desc" placeholder="Write full homework requirements here..." required rows="4"
+                class="w-full py-2.5 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-navy"></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <label for="asm-class" class="text-sm font-semibold text-slate-600 dark:text-slate-400">Target Class</label>
+                <select id="asm-class" required class="w-full py-2.5 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-navy">
+                  <!-- Populated by JS -->
+                </select>
+              </div>
+              <div class="space-y-1.5">
+                <label for="asm-due" class="text-sm font-semibold text-slate-600 dark:text-slate-400">Due Date</label>
+                <input type="date" id="asm-due" required
+                  class="w-full py-2.5 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-navy">
+              </div>
+            </div>
+
+            <button type="submit" class="w-full py-3 bg-navy text-white hover:bg-navy-light dark:bg-gold dark:text-navy dark:hover:bg-gold-light font-bold rounded-lg text-sm transition-colors shadow-lg cursor-pointer">
+              Publish Assignment
+            </button>
+          </form>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-6 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800/50 mt-auto transition-colors font-sans">
+      <p>© 2026 Modern Group of Education, Kuchaman City, Rajasthan</p>
+    </footer>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/teacher.js"></script>
+</body>
+</html>

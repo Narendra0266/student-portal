@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Secure Student and Staff Login for Modern Group of Education, Kuchaman City, Rajasthan.">
+  <title>Login - Modern Group of Education</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            navy: {
+              DEFAULT: '#1a2e5a',
+              light: '#2a447e',
+              dark: '#0f1c3a',
+            },
+            gold: {
+              DEFAULT: '#c9a227',
+              light: '#dfb83c',
+              dark: '#a68218',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
+</head>
+<body class="bg-[#f3f5f9] dark:bg-[#0f172a] text-[#1e293b] dark:text-[#f8fafc] min-h-screen flex flex-col md:flex-row transition-colors duration-300 font-sans">
+
+  <!-- LEFT SIDE: Campus Image & Motto Overlay (Hidden on Mobile) -->
+  <div class="hidden md:flex md:w-1/2 lg:w-3/5 bg-cover bg-center relative items-center justify-center p-12 overflow-hidden" 
+       style="background-image: url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1200&auto=format&fit=crop');">
+    <!-- Dark Navy overlay mimicking MUJ brand overlay -->
+    <div class="absolute inset-0 bg-navy/85 dark:bg-slate-950/85 backdrop-blur-xs"></div>
+    
+    <!-- Rotating background glow -->
+    <div class="absolute w-[500px] h-[500px] rounded-full bg-gold/10 blur-[120px] -top-20 -left-20"></div>
+    <div class="absolute w-[500px] h-[500px] rounded-full bg-navy/20 blur-[120px] -bottom-20 -right-20"></div>
+
+    <div class="relative z-10 text-center space-y-6 max-w-lg">
+      <img src="images/logo.png" alt="Modern Group Logo" class="h-44 w-auto object-contain mx-auto transition-transform duration-500 hover:scale-105">
+      <div class="space-y-2">
+        <h2 class="text-white text-3xl font-extrabold tracking-wide uppercase">Modern Group of Education</h2>
+        <p class="text-xs text-slate-300 tracking-wider">New Modern Sr. Sec. School | Modern English School | Modern Girls College</p>
+      </div>
+      <p class="text-gold font-bold text-lg italic tracking-widest border-y border-gold/30 py-3 uppercase">
+        Enjoying, Believing, Achieving
+      </p>
+      <p class="text-slate-350 text-xs leading-relaxed max-w-md mx-auto">
+        Kuchaman City's premier student life cycle portal. Facilitating seamless interactions across academic records, fee invoicing, and course timetables.
+      </p>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDE: Login Form Section -->
+  <div class="w-full md:w-1/2 lg:w-2/5 flex flex-col justify-between p-8 md:p-12 bg-white dark:bg-slate-900 transition-colors">
+    <!-- Top Bar Controls -->
+    <div class="flex justify-between items-center mb-8">
+      <!-- Logo show only on Mobile -->
+      <div class="flex items-center gap-2 md:hidden">
+        <img src="images/logo.png" alt="Logo" class="h-12 w-auto object-contain">
+        <div>
+          <h1 class="text-navy dark:text-gold font-bold text-sm leading-none">Modern Group</h1>
+          <span class="text-[8px] text-slate-500">Kuchaman City</span>
+        </div>
+      </div>
+      <span class="hidden md:inline text-xs text-slate-400 font-medium">SLCM Portal v2.0</span>
+      
+
+    </div>
+
+    <!-- Central Form Container -->
+    <div class="max-w-md w-full mx-auto space-y-8 my-auto">
+      <div class="space-y-2">
+        <h3 class="text-2xl font-extrabold text-navy dark:text-gold">Account Sign In</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400">Please authenticate with your registered institution email</p>
+      </div>
+
+      <!-- MUJ SLCM tab switcher style for Student/Parent login -->
+      <div class="flex border-b border-slate-200 dark:border-slate-800">
+        <button onclick="switchLoginTab('student')" id="tab-student" class="flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-navy dark:border-gold text-navy dark:text-gold cursor-pointer">
+          Student
+        </button>
+        <button onclick="switchLoginTab('parent')" id="tab-parent" class="flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-transparent text-slate-400 dark:text-slate-500 hover:text-navy dark:hover:text-gold cursor-pointer">
+          Parent
+        </button>
+        <button onclick="switchLoginTab('staff')" id="tab-staff" class="flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-transparent text-slate-400 dark:text-slate-500 hover:text-navy dark:hover:text-gold cursor-pointer">
+          Teacher / Admin
+        </button>
+      </div>
+
+      <form id="login-form" class="space-y-5">
+        <!-- Error Alert -->
+        <div id="login-error" class="hidden bg-red-50 border-l-4 border-red-500 text-red-700 p-3.5 rounded-lg text-xs" role="alert">
+          <span>Invalid email or password.</span>
+        </div>
+
+        <div class="space-y-1.5">
+          <label for="email" class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Email Address</label>
+          <div class="relative">
+            <input type="email" id="email" placeholder="student@modern.edu" required
+              class="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-navy dark:focus:ring-gold text-sm transition-all">
+            <i class="fa-solid fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <label for="password" class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Password</label>
+          <div class="relative">
+            <input type="password" id="password" placeholder="••••••••" required
+              class="w-full pl-10 pr-10 py-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-navy dark:focus:ring-gold text-sm transition-all">
+            <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+            <button type="button" id="password-toggle" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-navy dark:hover:text-gold cursor-pointer">
+              <i class="fa-solid fa-eye" id="eye-icon"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-3 bg-navy hover:bg-navy-light text-white dark:bg-gold dark:hover:bg-gold-light dark:text-navy font-bold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 text-sm flex items-center justify-center gap-2 cursor-pointer">
+          Access SLCM <i class="fa-solid fa-right-to-bracket"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- Bottom Footer (Copyright details) -->
+    <div class="mt-8 border-t border-slate-100 dark:border-slate-800 pt-6 flex flex-col sm:flex-row justify-between items-center text-[10px] text-slate-400 gap-2">
+      <p>© 2026 Modern Group of Education</p>
+      <div class="flex gap-4">
+        <button onclick="fillDemo('student')" class="hover:text-gold cursor-pointer">Demo Student</button>
+        <button onclick="fillDemo('parent')" class="hover:text-gold cursor-pointer">Demo Parent</button>
+        <button onclick="fillDemo('teacher')" class="hover:text-gold cursor-pointer">Demo Teacher</button>
+        <button onclick="fillDemo('admin')" class="hover:text-gold cursor-pointer">Demo Admin</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script>
+    // Tab switcher visual representation
+    function switchLoginTab(tab) {
+      const studentBtn = document.getElementById('tab-student');
+      const parentBtn = document.getElementById('tab-parent');
+      const staffBtn = document.getElementById('tab-staff');
+      const emailField = document.getElementById('email');
+
+      // Reset all tabs
+      studentBtn.className = "flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-transparent text-slate-400 dark:text-slate-500 hover:text-navy dark:hover:text-gold cursor-pointer";
+      parentBtn.className = "flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-transparent text-slate-400 dark:text-slate-500 hover:text-navy dark:hover:text-gold cursor-pointer";
+      staffBtn.className = "flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-transparent text-slate-400 dark:text-slate-500 hover:text-navy dark:hover:text-gold cursor-pointer";
+
+      if (tab === 'student') {
+        studentBtn.className = "flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-navy dark:border-gold text-navy dark:text-gold cursor-pointer";
+        emailField.placeholder = "student@modern.edu";
+      } else if (tab === 'parent') {
+        parentBtn.className = "flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-navy dark:border-gold text-navy dark:text-gold cursor-pointer";
+        emailField.placeholder = "parent@modern.edu";
+      } else {
+        staffBtn.className = "flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-navy dark:border-gold text-navy dark:text-gold cursor-pointer";
+        emailField.placeholder = "teacher@modern.edu or admin@modern.edu";
+      }
+    }
+
+    // Demo logins filler
+    function fillDemo(role) {
+      const emailField = document.getElementById('email');
+      const passField = document.getElementById('password');
+      if (role === 'student') {
+        switchLoginTab('student');
+        emailField.value = 'student@modern.edu';
+        passField.value = 'student123';
+      } else if (role === 'parent') {
+        switchLoginTab('parent');
+        emailField.value = 'parent@modern.edu';
+        passField.value = 'parent123';
+      } else if (role === 'teacher') {
+        switchLoginTab('staff');
+        emailField.value = 'teacher@modern.edu';
+        passField.value = 'teacher123';
+      } else if (role === 'admin') {
+        switchLoginTab('staff');
+        emailField.value = 'admin@modern.edu';
+        passField.value = 'admin123';
+      }
+    }
+  </script>
+</body>
+</html>
