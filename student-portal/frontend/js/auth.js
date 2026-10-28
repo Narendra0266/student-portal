@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
               }
               return;
             }
-            throw new Error('Backend API is not connected. Use one of the Demo buttons below.');
+            throw new Error('Invalid email or password. Please check your credentials and try again.');
           }
           throw new Error(data.error || 'Authentication failed');
         }

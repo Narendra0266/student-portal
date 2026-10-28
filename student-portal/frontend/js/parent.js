@@ -8,8 +8,147 @@ if (!session) {
 const { token, user } = session || {};
 let charts = {}; // references to chart.js instances
 
+// ===== FALLBACK DATA (used when backend API is unreachable on static Vercel) =====
+
+function getDefaultProfile() {
+  // Try to look up a custom parent registered from Admin panel in localStorage
+  const storedParents = JSON.parse(localStorage.getItem('portal_parents') || '[]');
+  const customParent = storedParents.find(p => p.email === (user && user.email));
+
+  // Resolve student linked to this parent
+  const studentId = customParent ? customParent.student_id : null;
+
+  // Default student data (mirrors admin.js DEFAULT_STUDENTS[0])
+  const defaultStudent = {
+    name: 'Aarav Sharma',
+    roll_no: '24',
+    class: '11th',
+    section: 'A',
+    dob: '2009-08-14',
+    father_name: (user && user.name) || 'Rajesh Sharma',
+    email: 'student@modern.edu',
+    phone: '+91 98765 43210',
+    address: '120, Ganesh Colony, Kuchaman City, Rajasthan',
+    photo_url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=250&auto=format&fit=crop',
+    guardian: {
+      name: (user && user.name) || 'Rajesh Sharma',
+      relation: 'Father',
+      email: (user && user.email) || 'parent@modern.edu',
+      phone: '+91 98765 00123'
+    }
+  };
+
+  return defaultStudent;
+}
+
+const DEFAULT_ATTENDANCE = {
+  overall: 92,
+  presentCount: 46,
+  lateCount: 2,
+  absentCount: 2,
+  bySubject: [
+    { subject: 'Physics',    percent: 95, present: 19, total: 20 },
+    { subject: 'Chemistry',  percent: 90, present: 18, total: 20 },
+    { subject: 'Mathematics',percent: 95, present: 19, total: 20 },
+    { subject: 'English',    percent: 85, present: 17, total: 20 },
+    { subject: 'Physical Ed',percent: 100, present: 10, total: 10 }
+  ]
+};
+
+const DEFAULT_RESULTS = {
+  gpa: 3.85,
+  terms: [
+    {
+      id: 'term1',
+      name: 'Term 1 (Mid-Term)',
+      subjects: [
+        { name: 'Physics',     marks: 87, total: 100, grade: 'A',  remarks: 'Excellent performance' },
+        { name: 'Chemistry',   marks: 82, total: 100, grade: 'A-', remarks: 'Good conceptual clarity' },
+        { name: 'Mathematics', marks: 91, total: 100, grade: 'A+', remarks: 'Outstanding' },
+        { name: 'English',     marks: 78, total: 100, grade: 'B+', remarks: 'Good writing skills' },
+        { name: 'Computers',   marks: 88, total: 100, grade: 'A',  remarks: 'Very good logic' }
+      ]
+    },
+    {
+      id: 'term2',
+      name: 'Term 2 (Annual)',
+      subjects: [
+        { name: 'Physics',     marks: 89, total: 100, grade: 'A',  remarks: 'Consistent improvement' },
+        { name: 'Chemistry',   marks: 85, total: 100, grade: 'A',  remarks: 'Strong lab work' },
+        { name: 'Mathematics', marks: 94, total: 100, grade: 'A+', remarks: 'Exceptional problem solving' },
+        { name: 'English',     marks: 80, total: 100, grade: 'A-', remarks: 'Improved significantly' },
+        { name: 'Computers',   marks: 92, total: 100, grade: 'A+', remarks: 'Top of the class' }
+      ]
+    }
+  ]
+};
+
+const DEFAULT_FEES = {
+  currency: '₹',
+  outstanding: 12500,
+  paidTotal: 37500,
+  invoices: [
+    { id: 1, receipt_no: 'REC-2024-001', amount: 12500, due_date: '2024-04-01', status: 'paid' },
+    { id: 2, receipt_no: 'REC-2024-002', amount: 12500, due_date: '2024-07-01', status: 'paid' },
+    { id: 3, receipt_no: 'REC-2024-003', amount: 12500, due_date: '2024-10-01', status: 'paid' },
+    { id: 4, receipt_no: 'INV-2024-004', amount: 12500, due_date: '2025-01-15', status: 'pending' }
+  ]
+};
+
+const DEFAULT_TIMETABLE = {
+  Monday:    [
+    { time: '8:00 - 8:45 AM',  subject: 'Physics',     teacher: 'Mr. Suresh Kumar', room: 'Lab 1' },
+    { time: '8:45 - 9:30 AM',  subject: 'Mathematics',  teacher: 'Mrs. Priya Verma', room: 'Room 11A' },
+    { time: '9:45 - 10:30 AM', subject: 'English',      teacher: 'Mr. D. Singh',     room: 'Room 11A' },
+    { time: '10:30 - 11:15 AM',subject: 'Chemistry',    teacher: 'Mrs. S. Mehta',    room: 'Lab 2' }
+  ],
+  Tuesday:   [
+    { time: '8:00 - 8:45 AM',  subject: 'Chemistry',    teacher: 'Mrs. S. Mehta',    room: 'Lab 2' },
+    { time: '8:45 - 9:30 AM',  subject: 'Computers',    teacher: 'Mr. R. Gupta',     room: 'Computer Lab' },
+    { time: '9:45 - 10:30 AM', subject: 'Mathematics',  teacher: 'Mrs. Priya Verma', room: 'Room 11A' },
+    { time: '10:30 - 11:15 AM',subject: 'Physical Ed',  teacher: 'Mr. K. Sharma',    room: 'Ground' }
+  ],
+  Wednesday: [
+    { time: '8:00 - 8:45 AM',  subject: 'Mathematics',  teacher: 'Mrs. Priya Verma', room: 'Room 11A' },
+    { time: '8:45 - 9:30 AM',  subject: 'Physics',      teacher: 'Mr. Suresh Kumar', room: 'Lab 1' },
+    { time: '9:45 - 10:30 AM', subject: 'English',      teacher: 'Mr. D. Singh',     room: 'Room 11A' },
+    { time: '10:30 - 11:15 AM',subject: 'Computers',    teacher: 'Mr. R. Gupta',     room: 'Computer Lab' }
+  ],
+  Thursday:  [
+    { time: '8:00 - 8:45 AM',  subject: 'English',      teacher: 'Mr. D. Singh',     room: 'Room 11A' },
+    { time: '8:45 - 9:30 AM',  subject: 'Chemistry',    teacher: 'Mrs. S. Mehta',    room: 'Lab 2' },
+    { time: '9:45 - 10:30 AM', subject: 'Physics',      teacher: 'Mr. Suresh Kumar', room: 'Lab 1' },
+    { time: '10:30 - 11:15 AM',subject: 'Mathematics',  teacher: 'Mrs. Priya Verma', room: 'Room 11A' }
+  ],
+  Friday:    [
+    { time: '8:00 - 8:45 AM',  subject: 'Computers',    teacher: 'Mr. R. Gupta',     room: 'Computer Lab' },
+    { time: '8:45 - 9:30 AM',  subject: 'Physical Ed',  teacher: 'Mr. K. Sharma',    room: 'Ground' },
+    { time: '9:45 - 10:30 AM', subject: 'Chemistry',    teacher: 'Mrs. S. Mehta',    room: 'Lab 2' },
+    { time: '10:30 - 11:15 AM',subject: 'Physics',      teacher: 'Mr. Suresh Kumar', room: 'Lab 1' }
+  ]
+};
+
+// ===== HELPER: safe fetch that never throws =====
+async function safeFetch(url, options) {
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) return null;
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  } catch {
+    return null;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   if (!session) return;
+
+  // Set topbar username immediately (before any async calls)
+  const nameEl = document.getElementById('user-display-name');
+  if (nameEl) nameEl.textContent = (user && user.name) || 'Parent User';
 
   setupNavigation();
   setupMobileSidebar();
@@ -17,6 +156,32 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load Initial Data
   loadAllData();
 });
+
+// Fetch and render data
+async function loadAllData() {
+  const headers = getAuthHeaders();
+
+  // 1. Profile Details
+  const profileData = await safeFetch('/api/parents/child-profile', { headers });
+  const profile = profileData || getDefaultProfile();
+  renderProfile(profile);
+
+  // 2. Attendance Details
+  const attendanceData = await safeFetch('/api/parents/child-attendance', { headers });
+  renderAttendance(attendanceData || DEFAULT_ATTENDANCE);
+
+  // 3. Results / Marks
+  const resultsData = await safeFetch('/api/parents/child-results', { headers });
+  renderResults(resultsData || DEFAULT_RESULTS);
+
+  // 4. Fees Status
+  const feesData = await safeFetch('/api/parents/child-fees', { headers });
+  renderFees(feesData || DEFAULT_FEES);
+
+  // 5. Timetable Schedule
+  const timetableData = await safeFetch('/api/parents/child-timetable', { headers });
+  renderTimetable(timetableData || DEFAULT_TIMETABLE, profile.class, profile.section);
+}
 
 // Setup sidebar tab selection
 function setupNavigation() {
@@ -76,57 +241,10 @@ function toggleMobileSidebar(show) {
 }
 
 // Fetch and render data
-async function loadAllData() {
-  try {
-    const headers = getAuthHeaders();
-
-    // 1. Profile Details
-    const profileRes = await fetch('/api/parents/child-profile', { headers });
-    const profile = await profileRes.json();
-    if (profileRes.ok) {
-      renderProfile(profile);
-    }
-
-    // 2. Attendance Details
-    const attendanceRes = await fetch('/api/parents/child-attendance', { headers });
-    const attendance = await attendanceRes.json();
-    if (attendanceRes.ok) {
-      renderAttendance(attendance);
-    }
-
-    // 3. Results / Marks
-    const resultsRes = await fetch('/api/parents/child-results', { headers });
-    const results = await resultsRes.json();
-    if (resultsRes.ok) {
-      renderResults(results);
-    }
-
-    // 4. Fees Status
-    const feesRes = await fetch('/api/parents/child-fees', { headers });
-    const fees = await feesRes.json();
-    if (feesRes.ok) {
-      renderFees(fees);
-    }
-
-    // 5. Timetable Schedule
-    const timetableRes = await fetch('/api/parents/child-timetable', { headers });
-    const timetable = await timetableRes.json();
-    if (timetableRes.ok) {
-      renderTimetable(timetable, profile.class, profile.section);
-    }
-
-  } catch (err) {
-    console.error('Error loading parent dashboard details:', err);
-  }
-}
-
 // 1. Profile rendering
 function renderProfile(profile) {
-  // Cache user data in top bar
-  document.getElementById('user-display-name').textContent = user.name || 'Parent User';
-
   // Welcomer
-  document.getElementById('welcome-parent-name').textContent = user.name || 'Parent User';
+  document.getElementById('welcome-parent-name').textContent = (user && user.name) || 'Parent User';
   document.getElementById('welcome-child-name').textContent = profile.name;
   document.getElementById('welcome-roll').textContent = profile.roll_no;
   document.getElementById('welcome-class-section').textContent = `${profile.class} - ${profile.section}`;

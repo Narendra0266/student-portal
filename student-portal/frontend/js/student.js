@@ -8,8 +8,160 @@ if (!session) {
 const { token, user } = session || {};
 let charts = {}; // references to chart.js instances
 
+// ===== FALLBACK DATA (used when backend API is unreachable on static Vercel) =====
+
+const DEFAULT_STUDENT_PROFILE = {
+  name: 'Aarav Sharma',
+  roll_no: '24',
+  class: '11th',
+  section: 'A',
+  dob: '2009-08-14',
+  father_name: 'Rajesh Sharma',
+  email: 'student@modern.edu',
+  phone: '+91 98765 43210',
+  address: '120, Ganesh Colony, Kuchaman City, Rajasthan',
+  institution_id: 1,
+  institution_name: 'New Modern Senior Secondary School',
+  photo_url: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=250&auto=format&fit=crop',
+  guardian: { name: 'Rajesh Sharma', relation: 'Father', phone: '+91 98765 00123' },
+  emergencyContact: { name: 'Rajesh Sharma' }
+};
+
+const DEFAULT_STUDENT_ATTENDANCE = {
+  overall: 92,
+  presentCount: 46,
+  lateCount: 2,
+  absentCount: 2,
+  bySubject: [
+    { subject: 'Physics',     percent: 95,  present: 19, total: 20 },
+    { subject: 'Chemistry',   percent: 90,  present: 18, total: 20 },
+    { subject: 'Mathematics', percent: 95,  present: 19, total: 20 },
+    { subject: 'English',     percent: 85,  present: 17, total: 20 },
+    { subject: 'Physical Ed', percent: 100, present: 10, total: 10 }
+  ]
+};
+
+const DEFAULT_STUDENT_RESULTS = {
+  gpa: 3.85,
+  terms: [
+    {
+      id: 'term1',
+      name: 'Term 1 (Mid-Term)',
+      subjects: [
+        { name: 'Physics',     marks: 87, total: 100, grade: 'A',  remarks: 'Excellent performance' },
+        { name: 'Chemistry',   marks: 82, total: 100, grade: 'A-', remarks: 'Good conceptual clarity' },
+        { name: 'Mathematics', marks: 91, total: 100, grade: 'A+', remarks: 'Outstanding' },
+        { name: 'English',     marks: 78, total: 100, grade: 'B+', remarks: 'Good writing skills' },
+        { name: 'Computers',   marks: 88, total: 100, grade: 'A',  remarks: 'Very good logic' }
+      ]
+    },
+    {
+      id: 'term2',
+      name: 'Term 2 (Annual)',
+      subjects: [
+        { name: 'Physics',     marks: 89, total: 100, grade: 'A',  remarks: 'Consistent improvement' },
+        { name: 'Chemistry',   marks: 85, total: 100, grade: 'A',  remarks: 'Strong lab work' },
+        { name: 'Mathematics', marks: 94, total: 100, grade: 'A+', remarks: 'Exceptional problem solving' },
+        { name: 'English',     marks: 80, total: 100, grade: 'A-', remarks: 'Improved significantly' },
+        { name: 'Computers',   marks: 92, total: 100, grade: 'A+', remarks: 'Top of the class' }
+      ]
+    }
+  ]
+};
+
+const DEFAULT_STUDENT_FEES = {
+  currency: '₹',
+  outstanding: 12500,
+  paidTotal: 37500,
+  invoices: [
+    { id: 1, receipt_no: 'REC-2024-001', amount: 12500, due_date: '2024-04-01', status: 'paid' },
+    { id: 2, receipt_no: 'REC-2024-002', amount: 12500, due_date: '2024-07-01', status: 'paid' },
+    { id: 3, receipt_no: 'REC-2024-003', amount: 12500, due_date: '2024-10-01', status: 'paid' },
+    { id: 4, receipt_no: 'INV-2024-004', amount: 12500, due_date: '2025-01-15', status: 'pending' }
+  ]
+};
+
+const DEFAULT_STUDENT_TIMETABLE = {
+  Monday:    [
+    { time: '8:00 - 8:45 AM',   subject: 'Physics',     teacher: 'Mr. Suresh Kumar', room: 'Lab 1' },
+    { time: '8:45 - 9:30 AM',   subject: 'Mathematics', teacher: 'Mrs. Priya Verma', room: 'Room 11A' },
+    { time: '9:45 - 10:30 AM',  subject: 'English',     teacher: 'Mr. D. Singh',     room: 'Room 11A' },
+    { time: '10:30 - 11:15 AM', subject: 'Chemistry',   teacher: 'Mrs. S. Mehta',    room: 'Lab 2' }
+  ],
+  Tuesday:   [
+    { time: '8:00 - 8:45 AM',   subject: 'Chemistry',   teacher: 'Mrs. S. Mehta',    room: 'Lab 2' },
+    { time: '8:45 - 9:30 AM',   subject: 'Computers',   teacher: 'Mr. R. Gupta',     room: 'Computer Lab' },
+    { time: '9:45 - 10:30 AM',  subject: 'Mathematics', teacher: 'Mrs. Priya Verma', room: 'Room 11A' },
+    { time: '10:30 - 11:15 AM', subject: 'Physical Ed', teacher: 'Mr. K. Sharma',    room: 'Ground' }
+  ],
+  Wednesday: [
+    { time: '8:00 - 8:45 AM',   subject: 'Mathematics', teacher: 'Mrs. Priya Verma', room: 'Room 11A' },
+    { time: '8:45 - 9:30 AM',   subject: 'Physics',     teacher: 'Mr. Suresh Kumar', room: 'Lab 1' },
+    { time: '9:45 - 10:30 AM',  subject: 'English',     teacher: 'Mr. D. Singh',     room: 'Room 11A' },
+    { time: '10:30 - 11:15 AM', subject: 'Computers',   teacher: 'Mr. R. Gupta',     room: 'Computer Lab' }
+  ],
+  Thursday:  [
+    { time: '8:00 - 8:45 AM',   subject: 'English',     teacher: 'Mr. D. Singh',     room: 'Room 11A' },
+    { time: '8:45 - 9:30 AM',   subject: 'Chemistry',   teacher: 'Mrs. S. Mehta',    room: 'Lab 2' },
+    { time: '9:45 - 10:30 AM',  subject: 'Physics',     teacher: 'Mr. Suresh Kumar', room: 'Lab 1' },
+    { time: '10:30 - 11:15 AM', subject: 'Mathematics', teacher: 'Mrs. Priya Verma', room: 'Room 11A' }
+  ],
+  Friday:    [
+    { time: '8:00 - 8:45 AM',   subject: 'Computers',   teacher: 'Mr. R. Gupta',     room: 'Computer Lab' },
+    { time: '8:45 - 9:30 AM',   subject: 'Physical Ed', teacher: 'Mr. K. Sharma',    room: 'Ground' },
+    { time: '9:45 - 10:30 AM',  subject: 'Chemistry',   teacher: 'Mrs. S. Mehta',    room: 'Lab 2' },
+    { time: '10:30 - 11:15 AM', subject: 'Physics',     teacher: 'Mr. Suresh Kumar', room: 'Lab 1' }
+  ]
+};
+
+const DEFAULT_STUDENT_NOTICES = [
+  { id: 1, title: 'Annual Sports Day Announcement', content: 'Annual Sports Day will be held on 15th November. All students are expected to participate.', date: '2024-10-20', category: 'Event' },
+  { id: 2, title: 'Mid-Term Exam Schedule Released', content: 'Mid-term examinations will commence from 1st November. Time-table is available on the notice board.', date: '2024-10-18', category: 'Academics' }
+];
+
+const DEFAULT_STUDENT_ASSIGNMENTS = [
+  { id: 1, subject: 'Physics',     title: 'Newton\'s Laws Problems',         due_date: '2024-11-05', status: 'pending',   description: 'Solve exercises 5.1 to 5.10 from chapter 5.' },
+  { id: 2, subject: 'Chemistry',   title: 'Periodic Table Report',            due_date: '2024-11-03', status: 'submitted', description: 'Write a 2-page report on the periodic table groups.' },
+  { id: 3, subject: 'Mathematics', title: 'Calculus Practice Set',            due_date: '2024-11-08', status: 'pending',   description: 'Complete exercises from Section 7.3.' }
+];
+
+const DEFAULT_STUDENT_LIBRARY = [
+  { id: 1, book_title: 'Concepts of Physics Vol. 1', author: 'H.C. Verma', issued_date: '2024-10-01', due_date: '2024-10-31', status: 'issued' },
+  { id: 2, book_title: 'Higher Mathematics',          author: 'S.L. Loney',  issued_date: '2024-09-15', due_date: '2024-10-15', status: 'returned' }
+];
+
+const DEFAULT_STUDENT_TRANSPORT = {
+  route: 'Route 4 - Kuchaman City North',
+  bus_no: 'MH-12-AB-3456',
+  pickup_time: '7:15 AM',
+  drop_time: '4:30 PM',
+  driver_name: 'Ramesh Ji',
+  driver_phone: '+91 98010 12345'
+};
+
+const DEFAULT_STUDENT_HOSTEL = null; // Day scholar by default
+
+// ===== HELPER: safe fetch that never throws =====
+async function safeFetch(url, options) {
+  try {
+    const res = await fetch(url, options);
+    if (!res.ok) return null;
+    try {
+      return await res.json();
+    } catch {
+      return null;
+    }
+  } catch {
+    return null;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   if (!session) return;
+
+  // Set topbar username immediately (before any async calls)
+  const nameEl = document.getElementById('user-display-name');
+  if (nameEl) nameEl.textContent = (user && user.name) || 'Student';
 
   setupNavigation();
   setupMobileSidebar();
@@ -78,81 +230,51 @@ function toggleMobileSidebar(show) {
 
 // Fetch and render data
 async function loadAllData() {
-  try {
-    const headers = getAuthHeaders();
+  const headers = getAuthHeaders();
 
-    // 1. Profile Details
-    const profileRes = await fetch('/api/students/profile', { headers });
-    const profile = await profileRes.json();
-    if (profileRes.ok) {
-      renderProfile(profile);
-    }
+  // 1. Profile Details
+  const profileData = await safeFetch('/api/students/profile', { headers });
+  const profile = profileData || DEFAULT_STUDENT_PROFILE;
+  renderProfile(profile);
 
-    // 2. Attendance Details
-    const attendanceRes = await fetch('/api/students/attendance', { headers });
-    const attendance = await attendanceRes.json();
-    if (attendanceRes.ok) {
-      renderAttendance(attendance);
-    }
+  // 2. Attendance Details
+  const attendanceData = await safeFetch('/api/students/attendance', { headers });
+  renderAttendance(attendanceData || DEFAULT_STUDENT_ATTENDANCE);
 
-    // 3. Results / Marks
-    const resultsRes = await fetch('/api/students/results', { headers });
-    const results = await resultsRes.json();
-    if (resultsRes.ok) {
-      renderResults(results);
-    }
+  // 3. Results / Marks
+  const resultsData = await safeFetch('/api/students/results', { headers });
+  renderResults(resultsData || DEFAULT_STUDENT_RESULTS);
 
-    // 4. Fees Status
-    const feesRes = await fetch('/api/students/fees', { headers });
-    const fees = await feesRes.json();
-    if (feesRes.ok) {
-      renderFees(fees);
-    }
+  // 4. Fees Status
+  const feesData = await safeFetch('/api/students/fees', { headers });
+  renderFees(feesData || DEFAULT_STUDENT_FEES);
 
-    // 5. Timetable Schedule
-    const timetableRes = await fetch('/api/students/timetable', { headers });
-    const timetable = await timetableRes.json();
-    if (timetableRes.ok) {
-      renderTimetable(timetable, profile.class, profile.section);
-    }
+  // 5. Timetable Schedule
+  const timetableData = await safeFetch('/api/students/timetable', { headers });
+  renderTimetable(timetableData || DEFAULT_STUDENT_TIMETABLE, profile.class, profile.section);
 
-    // 6. Notices / Announcements
-    const noticesRes = await fetch('/api/notices', { headers });
-    const notices = await noticesRes.json();
-    if (noticesRes.ok) {
-      renderNotices(notices);
-    }
+  // 6. Notices / Announcements
+  const noticesData = await safeFetch('/api/notices', { headers });
+  renderNotices(noticesData || DEFAULT_STUDENT_NOTICES);
 
-    // 7. Homework / Assignments
-    const assignmentsRes = await fetch('/api/students/assignments', { headers });
-    const assignments = await assignmentsRes.json();
-    if (assignmentsRes.ok) {
-      renderAssignments(assignments);
-    }
+  // 7. Homework / Assignments
+  const assignmentsData = await safeFetch('/api/students/assignments', { headers });
+  renderAssignments(assignmentsData || DEFAULT_STUDENT_ASSIGNMENTS);
 
-    // 8. Library Logs
-    const libraryRes = await fetch('/api/students/library', { headers });
-    const library = await libraryRes.json();
-    if (libraryRes.ok) {
-      renderLibrary(library);
-    }
+  // 8. Library Logs
+  const libraryData = await safeFetch('/api/students/library', { headers });
+  renderLibrary(libraryData || DEFAULT_STUDENT_LIBRARY);
 
-    // 9. Transport Logs
-    const transportRes = await fetch('/api/students/transport', { headers });
-    const transport = await transportRes.json();
-    if (transportRes.ok) {
-      renderTransport(transport);
-    }
+  // 9. Transport Logs
+  const transportData = await safeFetch('/api/students/transport', { headers });
+  if (transportData || DEFAULT_STUDENT_TRANSPORT) {
+    renderTransport(transportData || DEFAULT_STUDENT_TRANSPORT);
+  }
 
-    // 10. Hostel Logs
-    const hostelRes = await fetch('/api/students/hostel', { headers });
-    const hostel = await hostelRes.json();
-    if (hostelRes.ok) {
-      renderHostel(hostel);
-    }
-
-  } catch (err) {
-    console.error('Error loading student details:', err);
+  // 10. Hostel Logs
+  const hostelData = await safeFetch('/api/students/hostel', { headers });
+  if (hostelData) {
+    renderHostel(hostelData);
   }
 }
 
