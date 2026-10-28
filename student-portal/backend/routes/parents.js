@@ -12,5 +12,8 @@ router.get('/child-attendance', parentsController.getChildAttendance);
 router.get('/child-results', parentsController.getChildResults);
 router.get('/child-fees', parentsController.getChildFees);
 router.get('/child-timetable', parentsController.getChildTimetable);
+router.post('/pay-fees', parentsController.payFees);
+router.get('/messages', parentsController.getMessages);
+router.post('/messages', parentsController.sendMessage);
 
 module.exports = router;

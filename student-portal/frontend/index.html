@@ -1,17 +1,44 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Secure Student and Staff Login for Modern Group of Education, Kuchaman City, Rajasthan.">
+  <meta name="description"
+    content="Secure Student and Staff Login for Modern Group of Education, Kuchaman City, Rajasthan.">
   <title>Login - Modern Group of Education</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
+          keyframes: {
+            'fade-in-up': {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            'float': {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            }
+          },
+          animation: {
+            'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
+            'float': 'float 6s ease-in-out infinite',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif'],
+          },
           colors: {
             navy: {
               DEFAULT: '#1a2e5a',
@@ -34,112 +61,148 @@
   <link rel="stylesheet" href="css/style.css">
 
 </head>
-<body class="bg-[#f3f5f9] dark:bg-[#0f172a] text-[#1e293b] dark:text-[#f8fafc] min-h-screen flex flex-col md:flex-row transition-colors duration-300 font-sans">
 
-  <!-- LEFT SIDE: Campus Image & Motto Overlay (Hidden on Mobile) -->
-  <div class="hidden md:flex md:w-1/2 lg:w-3/5 bg-cover bg-center relative items-center justify-center p-12 overflow-hidden" 
-       style="background-image: url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1200&auto=format&fit=crop');">
-    <!-- Dark Navy overlay mimicking MUJ brand overlay -->
-    <div class="absolute inset-0 bg-navy/85 dark:bg-slate-950/85 backdrop-blur-xs"></div>
-    
-    <!-- Rotating background glow -->
-    <div class="absolute w-[500px] h-[500px] rounded-full bg-gold/10 blur-[120px] -top-20 -left-20"></div>
-    <div class="absolute w-[500px] h-[500px] rounded-full bg-navy/20 blur-[120px] -bottom-20 -right-20"></div>
+<body
+  class="bg-cover bg-center min-h-screen relative flex items-center justify-center p-4 sm:p-8 font-sans overflow-x-hidden"
+  style="background-image: url('https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1600&auto=format&fit=crop');">
 
-    <div class="relative z-10 text-center space-y-6 max-w-lg">
-      <img src="images/logo.png" alt="Modern Group Logo" class="h-44 w-auto object-contain mx-auto transition-transform duration-500 hover:scale-105">
-      <div class="space-y-2">
-        <h2 class="text-white text-3xl font-extrabold tracking-wide uppercase">Modern Group of Education</h2>
-        <p class="text-xs text-slate-300 tracking-wider">New Modern Sr. Sec. School | Modern English School | Modern Girls College</p>
-      </div>
-      <p class="text-gold font-bold text-lg italic tracking-widest border-y border-gold/30 py-3 uppercase">
-        Enjoying, Believing, Achieving
-      </p>
-      <p class="text-slate-350 text-xs leading-relaxed max-w-md mx-auto">
-        Kuchaman City's premier student life cycle portal. Facilitating seamless interactions across academic records, fee invoicing, and course timetables.
-      </p>
-    </div>
+  <!-- Deep Navy Cinematic Overlay -->
+  <div class="fixed inset-0 bg-navy/85 backdrop-blur-sm z-0"></div>
+
+  <!-- Glowing Atmospheric Orbs -->
+  <div
+    class="fixed w-[600px] h-[600px] rounded-full bg-gold/15 blur-[120px] top-[-10%] left-[-10%] z-0 pointer-events-none">
+  </div>
+  <div
+    class="fixed w-[800px] h-[800px] rounded-full bg-blue-400/10 blur-[150px] bottom-[-20%] right-[-10%] z-0 pointer-events-none">
   </div>
 
-  <!-- RIGHT SIDE: Login Form Section -->
-  <div class="w-full md:w-1/2 lg:w-2/5 flex flex-col justify-between p-8 md:p-12 bg-white dark:bg-slate-900 transition-colors">
-    <!-- Top Bar Controls -->
-    <div class="flex justify-between items-center mb-8">
-      <!-- Logo show only on Mobile -->
-      <div class="flex items-center gap-2 md:hidden">
-        <img src="images/logo.png" alt="Logo" class="h-12 w-auto object-contain">
-        <div>
-          <h1 class="text-navy dark:text-gold font-bold text-sm leading-none">Modern Group</h1>
-          <span class="text-[8px] text-slate-500">Kuchaman City</span>
-        </div>
-      </div>
-      <span class="hidden md:inline text-xs text-slate-400 font-medium">SLCM Portal v2.0</span>
-      
+  <!-- THE FLOATING GLASS CARD -->
+  <div
+    class="relative z-10 w-full max-w-6xl rounded-3xl bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl overflow-hidden flex flex-col md:flex-row animate-fade-in-up">
 
+    <!-- LEFT SIDE: Branding Panel -->
+    <div
+      class="w-full md:w-1/2 p-10 lg:p-16 flex flex-col items-center justify-center text-center relative overflow-hidden">
+      <!-- Subtle internal glow -->
+      <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
+
+      <div class="relative z-10 space-y-8">
+        <img src="images/logo.png" alt="Modern Group Logo"
+          class="h-32 lg:h-44 w-auto object-contain mx-auto drop-shadow-2xl animate-float">
+
+        <div class="space-y-4">
+          <div
+            class="inline-block px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-gold font-bold tracking-widest text-xs uppercase shadow-lg">
+            Welcome To
+          </div>
+          <h2
+            class="text-white text-3xl lg:text-5xl font-extrabold tracking-tight font-display leading-tight drop-shadow-lg">
+            Modern Group<br>of Education
+          </h2>
+          <p
+            class="text-sm text-slate-200 tracking-wide font-medium bg-black/20 py-2 px-4 rounded-lg inline-block backdrop-blur-sm border border-white/10">
+            Kuchaman City's Premier Institution
+          </p>
+        </div>
+
+        <p
+          class="text-gold font-bold text-sm lg:text-lg italic tracking-widest uppercase relative inline-block before:content-[''] before:absolute before:w-8 lg:before:w-12 before:h-px before:bg-gold/50 before:right-full before:mr-4 before:top-1/2 after:content-[''] after:absolute after:w-8 lg:after:w-12 after:h-px after:bg-gold/50 after:left-full after:ml-4 after:top-1/2">
+          Enjoying, Believing, Achieving
+        </p>
+      </div>
     </div>
 
-    <!-- Central Form Container -->
-    <div class="max-w-md w-full mx-auto space-y-8 my-auto">
-      <div class="space-y-2">
-        <h3 class="text-2xl font-extrabold text-navy dark:text-gold">Account Sign In</h3>
-        <p class="text-xs text-slate-500 dark:text-slate-400">Please authenticate with your registered institution email</p>
-      </div>
+    <!-- RIGHT SIDE: Login Form -->
+    <div
+      class="w-full md:w-1/2 bg-white/70 dark:bg-slate-900/80 backdrop-blur-3xl p-10 lg:p-16 flex flex-col justify-center border-l border-white/20 transition-colors duration-300">
 
-      <!-- MUJ SLCM tab switcher style for Student/Parent login -->
-      <div class="flex border-b border-slate-200 dark:border-slate-800">
-        <button onclick="switchLoginTab('student')" id="tab-student" class="flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-navy dark:border-gold text-navy dark:text-gold cursor-pointer">
-          Student
-        </button>
-        <button onclick="switchLoginTab('parent')" id="tab-parent" class="flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-transparent text-slate-400 dark:text-slate-500 hover:text-navy dark:hover:text-gold cursor-pointer">
-          Parent
-        </button>
-        <button onclick="switchLoginTab('staff')" id="tab-staff" class="flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-transparent text-slate-400 dark:text-slate-500 hover:text-navy dark:hover:text-gold cursor-pointer">
-          Teacher / Admin
-        </button>
-      </div>
-
-      <form id="login-form" class="space-y-5">
-        <!-- Error Alert -->
-        <div id="login-error" class="hidden bg-red-50 border-l-4 border-red-500 text-red-700 p-3.5 rounded-lg text-xs" role="alert">
-          <span>Invalid email or password.</span>
+      <div class="max-w-md w-full mx-auto space-y-8">
+        <!-- Header -->
+        <div class="space-y-2 text-center md:text-left">
+          <h3 class="text-3xl font-extrabold font-display text-navy dark:text-gold tracking-tight">Account Sign In</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">Please authenticate with your registered
+            institution email</p>
         </div>
 
-        <div class="space-y-1.5">
-          <label for="email" class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Email Address</label>
-          <div class="relative">
-            <input type="email" id="email" placeholder="student@modern.edu" required
-              class="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-navy dark:focus:ring-gold text-sm transition-all">
-            <i class="fa-solid fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+        <!-- Sleek Pill Tab Switcher -->
+        <div
+          class="flex p-1.5 bg-slate-200/50 dark:bg-slate-800/80 backdrop-blur-md rounded-2xl border border-white/50 dark:border-slate-700 shadow-inner">
+          <button onclick="switchLoginTab('student')" id="tab-student"
+            class="flex-1 py-3 text-center text-sm font-bold rounded-xl bg-white/5 dark:bg-navy text-navy dark:text-gold shadow-md transition-all duration-300 cursor-pointer">
+            Student
+          </button>
+          <button onclick="switchLoginTab('parent')" id="tab-parent"
+            class="flex-1 py-3 text-center text-sm font-bold rounded-xl text-slate-500 hover:text-navy dark:hover:text-gold transition-all duration-300 cursor-pointer">
+            Parent
+          </button>
+          <button onclick="switchLoginTab('staff')" id="tab-staff"
+            class="flex-1 py-3 text-center text-sm font-bold rounded-xl text-slate-500 hover:text-navy dark:hover:text-gold transition-all duration-300 cursor-pointer">
+            Staff
+          </button>
+        </div>
+
+        <!-- Form -->
+        <form id="login-form" class="space-y-5">
+          <!-- Error Alert -->
+          <div id="login-error"
+            class="hidden bg-red-500/10 border border-red-500/50 backdrop-blur-sm text-red-600 dark:text-red-400 p-4 rounded-xl text-sm font-medium flex items-center gap-3"
+            role="alert">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>Invalid email or password.</span>
+          </div>
+
+          <div class="space-y-2">
+            <label for="email"
+              class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider ml-1">Email
+              Address</label>
+            <div class="relative group">
+              <input type="email" id="email" placeholder="e.g. student@modern.edu" required
+                class="w-full pl-12 pr-4 py-4 rounded-2xl border border-white/60 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 focus:bg-white/5 dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-navy/50 focus:border-navy dark:focus:ring-gold shadow-sm transition-all duration-300 group-hover:border-slate-400 backdrop-blur-sm font-medium">
+              <i
+                class="fa-solid fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm transition-colors group-focus-within:text-navy dark:group-focus-within:text-gold"></i>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label for="password"
+              class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider ml-1">Password</label>
+            <div class="relative group">
+              <input type="password" id="password" placeholder="••••••••" required
+                class="w-full pl-12 pr-12 py-4 rounded-2xl border border-white/60 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 focus:bg-white/5 dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-navy/50 focus:border-navy dark:focus:ring-gold shadow-sm transition-all duration-300 group-hover:border-slate-400 backdrop-blur-sm font-medium">
+              <i
+                class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm transition-colors group-focus-within:text-navy dark:group-focus-within:text-gold"></i>
+              <button type="button" id="password-toggle"
+                class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-navy dark:hover:text-gold transition-colors cursor-pointer">
+                <i class="fa-solid fa-eye" id="eye-icon"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit"
+            class="w-full py-4 mt-4 bg-navy hover:bg-navy-light text-white dark:bg-gold dark:hover:bg-gold-light dark:text-navy font-bold rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3 cursor-pointer font-display tracking-wider text-lg">
+            Access SLCM <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </form>
+
+        <!-- Footer Links -->
+        <div
+          class="pt-6 border-t border-slate-200 dark:border-slate-700/50 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 font-medium gap-4">
+          <p>© 2026 Modern Group</p>
+          <div class="flex flex-wrap justify-center gap-3">
+            <button onclick="fillDemo('student')"
+              class="hover:text-navy dark:hover:text-gold transition-colors cursor-pointer bg-slate-200/50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg">Demo
+              Student</button>
+            <button onclick="fillDemo('parent')"
+              class="hover:text-navy dark:hover:text-gold transition-colors cursor-pointer bg-slate-200/50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg">Demo
+              Parent</button>
+            <button onclick="fillDemo('teacher')"
+              class="hover:text-navy dark:hover:text-gold transition-colors cursor-pointer bg-slate-200/50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg">Demo
+              Staff</button>
           </div>
         </div>
-
-        <div class="space-y-1.5">
-          <label for="password" class="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Password</label>
-          <div class="relative">
-            <input type="password" id="password" placeholder="••••••••" required
-              class="w-full pl-10 pr-10 py-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-navy dark:focus:ring-gold text-sm transition-all">
-            <i class="fa-solid fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-            <button type="button" id="password-toggle" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-navy dark:hover:text-gold cursor-pointer">
-              <i class="fa-solid fa-eye" id="eye-icon"></i>
-            </button>
-          </div>
-        </div>
-
-        <button type="submit" class="w-full py-3 bg-navy hover:bg-navy-light text-white dark:bg-gold dark:hover:bg-gold-light dark:text-navy font-bold rounded-lg shadow-md hover:shadow-lg transition-all duration-200 text-sm flex items-center justify-center gap-2 cursor-pointer">
-          Access SLCM <i class="fa-solid fa-right-to-bracket"></i>
-        </button>
-      </form>
-    </div>
-
-    <!-- Bottom Footer (Copyright details) -->
-    <div class="mt-8 border-t border-slate-100 dark:border-slate-800 pt-6 flex flex-col sm:flex-row justify-between items-center text-[10px] text-slate-400 gap-2">
-      <p>© 2026 Modern Group of Education</p>
-      <div class="flex gap-4">
-        <button onclick="fillDemo('student')" class="hover:text-gold cursor-pointer">Demo Student</button>
-        <button onclick="fillDemo('parent')" class="hover:text-gold cursor-pointer">Demo Parent</button>
-        <button onclick="fillDemo('teacher')" class="hover:text-gold cursor-pointer">Demo Teacher</button>
-        <button onclick="fillDemo('admin')" class="hover:text-gold cursor-pointer">Demo Admin</button>
       </div>
+
     </div>
   </div>
 
@@ -152,21 +215,43 @@
       const staffBtn = document.getElementById('tab-staff');
       const emailField = document.getElementById('email');
 
+      const inactiveClass = "flex-1 py-3 text-center text-sm font-bold rounded-xl text-slate-500 hover:text-navy dark:hover:text-gold transition-all duration-300 cursor-pointer";
+      const activeClass = "flex-1 py-3 text-center text-sm font-bold rounded-xl bg-white/5 dark:bg-navy text-navy dark:text-gold shadow-md transition-all duration-300 cursor-pointer";
+
       // Reset all tabs
-      studentBtn.className = "flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-transparent text-slate-400 dark:text-slate-500 hover:text-navy dark:hover:text-gold cursor-pointer";
-      parentBtn.className = "flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-transparent text-slate-400 dark:text-slate-500 hover:text-navy dark:hover:text-gold cursor-pointer";
-      staffBtn.className = "flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-transparent text-slate-400 dark:text-slate-500 hover:text-navy dark:hover:text-gold cursor-pointer";
+      studentBtn.className = inactiveClass;
+      parentBtn.className = inactiveClass;
+      staffBtn.className = inactiveClass;
 
       if (tab === 'student') {
-        studentBtn.className = "flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-navy dark:border-gold text-navy dark:text-gold cursor-pointer";
+        studentBtn.className = activeClass;
         emailField.placeholder = "student@modern.edu";
       } else if (tab === 'parent') {
-        parentBtn.className = "flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-navy dark:border-gold text-navy dark:text-gold cursor-pointer";
+        parentBtn.className = activeClass;
         emailField.placeholder = "parent@modern.edu";
       } else {
-        staffBtn.className = "flex-1 pb-3 text-center text-sm font-semibold border-b-2 border-navy dark:border-gold text-navy dark:text-gold cursor-pointer";
+        staffBtn.className = activeClass;
         emailField.placeholder = "teacher@modern.edu or admin@modern.edu";
       }
+    }
+
+    // Password Toggle Logic
+    const toggleBtn = document.getElementById('password-toggle');
+    const passInput = document.getElementById('password');
+    const eyeIcon = document.getElementById('eye-icon');
+
+    if (toggleBtn && passInput) {
+      toggleBtn.addEventListener('click', () => {
+        if (passInput.type === 'password') {
+          passInput.type = 'text';
+          eyeIcon.classList.remove('fa-eye');
+          eyeIcon.classList.add('fa-eye-slash');
+        } else {
+          passInput.type = 'password';
+          eyeIcon.classList.remove('fa-eye-slash');
+          eyeIcon.classList.add('fa-eye');
+        }
+      });
     }
 
     // Demo logins filler
@@ -193,4 +278,5 @@
     }
   </script>
 </body>
+
 </html>

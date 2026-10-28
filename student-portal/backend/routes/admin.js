@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/admin');
 const { verifyToken, isAdmin } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 
 // Protect all admin routes
 router.use(verifyToken);
@@ -13,8 +14,8 @@ router.get('/institutions', adminController.getInstitutions);
 
 // Student CRUD
 router.get('/students', adminController.getStudents);
-router.post('/students', adminController.createStudent);
-router.put('/students/:id', adminController.updateStudent);
+router.post('/students', upload.single('photo'), adminController.createStudent);
+router.put('/students/:id', upload.single('photo'), adminController.updateStudent);
 router.delete('/students/:id', adminController.deleteStudent);
 
 // Teacher CRUD

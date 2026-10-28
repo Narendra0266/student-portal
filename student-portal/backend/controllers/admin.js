@@ -60,7 +60,12 @@ const getStudents = async (req, res) => {
 };
 
 const createStudent = async (req, res) => {
-  const { name, email, password, institution_id, roll_no, class: cls, section, dob, father_name, address, phone, photo_url } = req.body;
+  const { name, email, password, institution_id, roll_no, class: cls, section, dob, father_name, address, phone } = req.body;
+  let photo_url = req.body.photo_url;
+
+  if (req.file) {
+    photo_url = `/images/uploads/${req.file.filename}`;
+  }
 
   if (!name || !email || !password || !roll_no || !cls || !section || !dob || !father_name || !address || !phone) {
     return res.status(400).json({ error: 'Required fields are missing.' });
@@ -107,7 +112,12 @@ const createStudent = async (req, res) => {
 
 const updateStudent = async (req, res) => {
   const studentId = req.params.id;
-  const { name, email, password, institution_id, roll_no, class: cls, section, dob, father_name, address, phone, photo_url } = req.body;
+  const { name, email, password, institution_id, roll_no, class: cls, section, dob, father_name, address, phone } = req.body;
+  let photo_url = req.body.photo_url;
+
+  if (req.file) {
+    photo_url = `/images/uploads/${req.file.filename}`;
+  }
 
   const conn = await db.getConnection();
   try {
@@ -136,12 +146,22 @@ const updateStudent = async (req, res) => {
     }
 
     // 2. Update student
-    await conn.query(
-      `UPDATE students 
-       SET roll_no = ?, class = ?, section = ?, dob = ?, father_name = ?, address = ?, phone = ?, photo_url = ? 
-       WHERE id = ?`,
-      [roll_no, cls, section, dob, father_name, address, phone, photo_url || null, studentId]
-    );
+    // If no new photo_url is provided and no file is uploaded, keep the old one
+    if (photo_url !== undefined && photo_url !== '') {
+      await conn.query(
+        `UPDATE students 
+         SET roll_no = ?, class = ?, section = ?, dob = ?, father_name = ?, address = ?, phone = ?, photo_url = ? 
+         WHERE id = ?`,
+        [roll_no, cls, section, dob, father_name, address, phone, photo_url, studentId]
+      );
+    } else {
+      await conn.query(
+        `UPDATE students 
+         SET roll_no = ?, class = ?, section = ?, dob = ?, father_name = ?, address = ?, phone = ? 
+         WHERE id = ?`,
+        [roll_no, cls, section, dob, father_name, address, phone, studentId]
+      );
+    }
 
     await conn.commit();
     return res.json({ message: 'Student updated successfully.' });

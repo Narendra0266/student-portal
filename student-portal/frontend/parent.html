@@ -6,10 +6,12 @@
   <title>Parent Portal - Modern Group of Education</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
       theme: {
         extend: {
+          fontFamily: { sans: ['Outfit', 'sans-serif'] },
           colors: {
             navy: {
               DEFAULT: '#1a2e5a',
@@ -68,6 +70,9 @@
       </button>
       <button data-tab="fees" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer text-left">
         <i class="fa-solid fa-file-invoice-dollar text-gold w-5"></i> Fee Status
+      </button>
+      <button data-tab="messages" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer text-left">
+        <i class="fa-solid fa-comments text-gold w-5"></i> Messages
       </button>
       <button data-tab="timetable" class="nav-tab w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold hover:bg-white/10 transition-colors text-slate-300 hover:text-white cursor-pointer text-left">
         <i class="fa-solid fa-clock text-gold w-5"></i> Timetable
@@ -285,6 +290,9 @@
               <select id="exam-selector" class="py-2 px-3 border border-slate-300 bg-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy">
                 <!-- Populated by JS -->
               </select>
+              <button id="btn-download-pdf" class="ml-4 bg-navy hover:bg-navy-light text-white py-2 px-4 rounded-lg text-xs font-bold shadow transition-colors flex items-center gap-2">
+                <i class="fa-solid fa-file-pdf"></i> Download PDF
+              </button>
             </div>
           </div>
 
@@ -320,6 +328,51 @@
         </div>
       </section>
 
+
+      <!-- ================= MESSAGES SECTION ================= -->
+      <section id="messages-section" class="content-section hidden space-y-6 h-[calc(100vh-140px)]">
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm flex h-full overflow-hidden">
+          <!-- Sidebar (Contacts) -->
+          <div class="w-1/3 border-r border-slate-200 bg-slate-50 flex flex-col">
+            <div class="p-4 border-b border-slate-200 bg-white">
+              <h3 class="font-bold text-navy text-lg">Conversations</h3>
+              <p class="text-xs text-slate-500">Select a teacher to chat</p>
+            </div>
+            <div id="contacts-list" class="flex-grow overflow-y-auto">
+              <!-- Contacts rendered here -->
+              <div class="p-4 flex items-center gap-3 border-b border-slate-100 hover:bg-slate-100 cursor-pointer bg-slate-100 border-l-4 border-gold">
+                <div class="w-10 h-10 rounded-full bg-navy flex items-center justify-center text-white font-bold">TC</div>
+                <div>
+                  <h4 class="font-bold text-sm text-navy">Class Teacher</h4>
+                  <p class="text-xs text-slate-500 truncate">Tap to view messages</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Chat Window -->
+          <div class="w-2/3 flex flex-col bg-white">
+            <div class="p-4 border-b border-slate-200 flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-navy flex items-center justify-center text-white font-bold text-xs">TC</div>
+              <h4 class="font-bold text-navy">Class Teacher</h4>
+            </div>
+            <!-- Chat History -->
+            <div id="chat-history" class="flex-grow overflow-y-auto p-4 space-y-4 bg-slate-50/50 flex flex-col">
+              <!-- Messages rendered here -->
+              <div class="text-center text-xs text-slate-400 my-4">Loading messages...</div>
+            </div>
+            <!-- Chat Input -->
+            <div class="p-4 border-t border-slate-200 bg-white">
+              <form id="chat-form" class="flex gap-2">
+                <input type="text" id="chat-input" class="flex-grow py-2 px-4 rounded-full border border-slate-300 focus:outline-none focus:border-navy focus:ring-1 focus:ring-navy text-sm" placeholder="Type your message..." required>
+                <button type="submit" class="bg-navy hover:bg-navy-light text-white rounded-full w-10 h-10 flex items-center justify-center transition-colors">
+                  <i class="fa-solid fa-paper-plane text-sm"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- ================= 4. FEE STATUS SECTION ================= -->
       <section id="fees-section" class="content-section hidden space-y-6">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -340,6 +393,9 @@
                 <span class="text-slate-500">Total Paid:</span>
                 <span id="fee-paid-amt" class="font-extrabold text-green-600">₹0.00</span>
               </div>
+              <button id="btn-pay-fees" class="w-full mt-2 bg-gold hover:bg-gold-dark text-white font-bold py-2 px-4 rounded-lg text-sm shadow transition-colors flex justify-center items-center gap-2 hidden">
+                <i class="fa-solid fa-credit-card"></i> Pay Due Fees
+              </button>
             </div>
           </div>
 

@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: student-portal
+    env: node
+    plan: free
+    rootDir: student-portal
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 5050
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DB_HOST
+        sync: false
+        placeholder: "Your external MySQL Database Host (e.g. Aiven, Clever Cloud, or Railway)"
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_USER
+        sync: false
+        placeholder: "Your external MySQL Database User"
+      - key: DB_PASS
+        sync: false
+        placeholder: "Your external MySQL Database Password"
+      - key: DB_NAME
+        sync: false
+        placeholder: "Your external MySQL Database Name (e.g. school_portal)"

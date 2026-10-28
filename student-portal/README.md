@@ -120,3 +120,87 @@ The database seeds include pre-configured accounts (passwords are hashed with bc
 - **Interactive SVG & Canvas Charts**: Displays responsive bar/doughnut graphs (Chart.js) for student analysis.
 - **3D Flip Card ID**: Visually stunning student profile presentation.
 - **Light-Dismiss Overlay**: Declarative native `<dialog>` modals with backdrop click dismissals.
+
+---
+
+## 🚀 Deployment to Vercel
+
+### Option A: Frontend Only (Recommended)
+This is the easiest approach and works best for student portals:
+
+1. **Deploy the Frontend to Vercel**
+   ```bash
+   cd student-portal
+   vercel --prod
+   ```
+
+2. **Deploy Backend Separately**
+   The Express backend requires MySQL and persistent connections. Deploy to:
+   - **Render.com** (recommended)
+   - **Railway.app** 
+   - **Fly.io**
+   - **AWS Beanstalk** or **Azure App Service**
+
+   The existing `render.yaml` file can be adapted for your backend deployment.
+
+### Option B: Full-Stack on Vercel
+For advanced setups, convert to Vercel serverless functions:
+
+1. **Structure for Serverless**
+   ```
+   student-portal/
+   ├── api/                 # Vercel API routes
+   │   ├── auth.js
+   │   ├── students.js
+   │   └── ... (all your routes)
+   ├── frontend/           # Static files
+   └── vercel.json
+   ```
+
+2. **Use External Database**
+   - **PlanetScale** (MySQL-compatible)
+   - **MongoDB Atlas** (if you switch to MongoDB)
+   - **Supabase** (PostgreSQL)
+   - **Railway** (MySQL/Rails)
+
+### Environment Variables for Vercel
+```env
+# For frontend (Vercel)
+NEXT_PUBLIC_API_URL=https://your-backend.vercel.app/api
+
+# For backend (if using serverless)
+DB_HOST=your_database_host
+DB_USER=your_user
+DB_PASS=your_password
+DB_NAME=school_portal
+JWT_SECRET=your_jwt_secret_key
+PORT=3000
+```
+
+### Database Connection Tips
+- Vercel Functions have cold starts - consider connection pooling
+- Use connection strings instead of individual env vars
+- For MySQL, Vercel doesn't support persistent connections
+- Use an external database service (PlanetScale, Supabase, Railway, etc.)
+
+### Important Limitations
+- ❌ Cannot run MySQL directly on Vercel
+- ✅ Can serve static HTML/CSS/JS files
+- ✅ Can run serverless API functions
+- ✅ Custom domain support
+- ✅ SSL/HTTPS included
+- ✅ Global CDN
+
+### What's Already Set Up
+- ✅ Static frontend in `frontend/` directory
+- ✅ `vercel.json` configuration
+- ✅ Production optimization headers
+- ✅ Rewrites for client-side routing (if you add React/Vue)
+
+## 🔗 Multi-Service Architecture
+For production, consider this pattern:
+- **Frontend**: Vercel (static) - Fast, global CDN
+- **API**: Render.com/Railway/Fly.io - Persistent MySQL
+- **Database**: External MySQL (PlanetScale, Railway, etc.) - Managed
+
+This gives you the best of both worlds: Vercel's frontend speed and a reliable backend with database persistence.

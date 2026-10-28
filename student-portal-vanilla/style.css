@@ -1,0 +1,88 @@
+/* -------------------------------------------------------------
+ * Custom Stylesheet for 3D Spline Scene & Campus Gallery
+ * ------------------------------------------------------------- */
+
+/* Custom Spotlight Animation */
+@keyframes spotlight {
+  0% {
+    opacity: 0;
+    transform: translate(-72%, -62%) scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -40%) scale(1);
+  }
+}
+
+.spotlight-svg {
+  animation: spotlight 2s ease 0.75s 1 normal forwards;
+}
+
+/* Custom Lightbox Image Animation */
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Spinner Loader for fallback states */
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 5px solid #ffffff;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Custom border color definitions (since Tailwind v4 uses standard classes) */
+.border-neutral-850 {
+  border-color: rgba(38, 38, 38, 0.7);
+}
+
+/* Custom Webkit Scrollbars for a Premium Feel */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #030712;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1f2937;
+  border-radius: 5px;
+  border: 2px solid #030712;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #374151;
+}
+
+/* Ensure iframe/spline-viewer fits neatly and prevents outline ring */
+spline-viewer {
+  outline: none;
+}
+spline-viewer:focus {
+  outline: none;
+}

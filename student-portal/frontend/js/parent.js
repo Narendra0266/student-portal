@@ -418,3 +418,155 @@ function renderTimetable(timetable, studentClass, studentSection) {
     container.appendChild(card);
   });
 }
+
+
+// ================= UPGRADE LOGIC (PAYMENTS, MESSAGES, PRINT) =================
+
+// PDF Download
+document.addEventListener('DOMContentLoaded', () => {
+  const btnDownload = document.getElementById('btn-download-pdf');
+  if (btnDownload) {
+    btnDownload.addEventListener('click', () => {
+      window.print();
+    });
+  }
+
+  // Payment Modal Logic
+  const btnPayFees = document.getElementById('btn-pay-fees');
+  const modal = document.getElementById('payment-modal');
+  const modalCard = document.getElementById('payment-modal-card');
+  const btnCloseModal = document.getElementById('close-payment-modal');
+  const btnSubmitPayment = document.getElementById('btn-submit-payment');
+
+  if (btnPayFees && modal) {
+    btnPayFees.addEventListener('click', () => {
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modalCard.classList.remove('scale-95', 'opacity-0');
+        modalCard.classList.add('scale-100', 'opacity-100');
+      }, 10);
+    });
+
+    const closeModal = () => {
+      modalCard.classList.remove('scale-100', 'opacity-100');
+      modalCard.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 300);
+    };
+
+    btnCloseModal.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    btnSubmitPayment.addEventListener('click', async () => {
+      btnSubmitPayment.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+      btnSubmitPayment.disabled = true;
+
+      try {
+        const response = await fetch('/api/parents/pay-fees', {
+          method: 'POST',
+          headers: getAuthHeaders()
+        });
+        
+        if (response.ok) {
+          btnSubmitPayment.innerHTML = '<i class="fa-solid fa-check text-green-400"></i> Payment Successful!';
+          btnSubmitPayment.classList.replace('bg-navy', 'bg-green-600');
+          setTimeout(() => {
+            closeModal();
+            window.location.reload(); // Refresh to show updated fees
+          }, 1500);
+        } else {
+          btnSubmitPayment.innerHTML = '<i class="fa-solid fa-xmark"></i> Payment Failed';
+          btnSubmitPayment.classList.replace('bg-navy', 'bg-red-600');
+          setTimeout(() => {
+            btnSubmitPayment.innerHTML = 'Try Again';
+            btnSubmitPayment.classList.replace('bg-red-600', 'bg-navy');
+            btnSubmitPayment.disabled = false;
+          }, 2000);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  }
+
+  // Messages Logic
+  const messagesTab = document.querySelector('[data-tab="messages"]');
+  if (messagesTab) {
+    messagesTab.addEventListener('click', () => {
+      loadMessages();
+    });
+  }
+
+  const chatForm = document.getElementById('chat-form');
+  if (chatForm) {
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = document.getElementById('chat-input');
+      const content = input.value.trim();
+      if (!content) return;
+
+      input.disabled = true;
+      try {
+        const response = await fetch('/api/parents/messages', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            receiver_id: 4, // Assuming Teacher ID is 4 for simulation
+            content: content
+          })
+        });
+        
+        if (response.ok) {
+          input.value = '';
+          loadMessages();
+        }
+      } catch (err) {
+        console.error('Error sending message:', err);
+      }
+      input.disabled = false;
+      input.focus();
+    });
+  }
+});
+
+async function loadMessages() {
+  const chatHistory = document.getElementById('chat-history');
+  if (!chatHistory) return;
+
+  try {
+    const response = await fetch('/api/parents/messages', {
+      headers: getAuthHeaders()
+    });
+    
+    if (response.ok) {
+      const messages = await response.json();
+      chatHistory.innerHTML = '';
+      
+      if (messages.length === 0) {
+        chatHistory.innerHTML = '<div class="text-center text-xs text-slate-400 my-4">No messages yet. Send a message to the class teacher.</div>';
+        return;
+      }
+      
+      messages.forEach(msg => {
+        const isMe = msg.sender_id === user.id;
+        const align = isMe ? 'self-end bg-navy text-white rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl' : 'self-start bg-white border border-slate-200 text-slate-700 rounded-tl-2xl rounded-tr-2xl rounded-br-2xl';
+        
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `max-w-[75%] p-3 text-sm shadow-sm ${align}`;
+        msgDiv.innerHTML = `
+          <p>${msg.content}</p>
+          <span class="text-[9px] block mt-1 ${isMe ? 'text-slate-300' : 'text-slate-400'}">${new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+        `;
+        chatHistory.appendChild(msgDiv);
+      });
+
+      // Scroll to bottom
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+  } catch (err) {
+    console.error('Error loading messages:', err);
+  }
+}

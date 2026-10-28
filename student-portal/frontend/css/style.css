@@ -66,3 +66,55 @@ dialog::backdrop {
 .content-section {
   animation: fadeIn 0.3s ease-out forwards;
 }
+
+/* ================= PRINT STYLES FOR REPORT CARD ================= */
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+  
+  /* Hide UI elements not meant for print */
+  #sidebar, 
+  #sidebar-overlay,
+  header, 
+  .nav-tab,
+  #btn-download-pdf,
+  #open-sidebar {
+    display: none !important;
+  }
+  
+  /* Make main content take full width */
+  .md\:pl-64 {
+    padding-left: 0 !important;
+  }
+  
+  /* Ensure the results section is visible during print */
+  #results-section {
+    display: block !important;
+    width: 100% !important;
+  }
+  
+  /* Hide all other sections just in case */
+  #profile-section,
+  #attendance-section,
+  #fees-section,
+  #timetable-section,
+  #messages-section {
+    display: none !important;
+  }
+  
+  /* Remove shadows and borders for cleaner print */
+  .shadow-sm, .shadow-md, .shadow-lg {
+    box-shadow: none !important;
+  }
+  
+  .border, .border-slate-200 {
+    border-color: #e2e8f0 !important;
+  }
+  
+  /* Make text black for contrast */
+  .text-slate-500, .text-slate-400 {
+    color: #475569 !important;
+  }
+}
