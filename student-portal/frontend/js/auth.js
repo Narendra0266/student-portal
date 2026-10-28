@@ -43,6 +43,23 @@ document.addEventListener('DOMContentLoaded', () => {
               'admin@modern.edu': { name: 'System Administrator', role: 'admin', pass: 'admin123' }
             };
 
+            // Also check dynamically added parents from Admin Panel
+            const storedParents = JSON.parse(localStorage.getItem('portal_parents') || '[]');
+            const customParent = storedParents.find(p => p.email === email && p.password === password);
+            if (customParent) {
+              const mockUser = {
+                id: customParent.id || 6,
+                name: customParent.name,
+                email: email,
+                role: 'parent',
+                institution_id: 1
+              };
+              localStorage.setItem('token', 'parent-token-' + Date.now());
+              localStorage.setItem('user', JSON.stringify(mockUser));
+              window.location.href = 'parent.html';
+              return;
+            }
+
             const demoAccount = demoUsers[email];
             if (demoAccount && password === demoAccount.pass) {
               const mockUser = {

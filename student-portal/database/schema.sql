@@ -4,6 +4,7 @@ USE school_portal;
 -- Disable checks to ease clean rebuild
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS `parents`;
 DROP TABLE IF EXISTS `hostel`;
 DROP TABLE IF EXISTS `transport`;
 DROP TABLE IF EXISTS `library`;
@@ -33,7 +34,7 @@ CREATE TABLE `users` (
   name VARCHAR(100) NOT NULL,
   email VARCHAR(100) UNIQUE NOT NULL,
   password VARCHAR(255) NOT NULL,
-  role ENUM('student', 'teacher', 'admin') NOT NULL,
+  role ENUM('student', 'teacher', 'admin', 'parent') NOT NULL,
   institution_id INT NULL,
   FOREIGN KEY (institution_id) REFERENCES `institutions`(id) ON DELETE SET NULL
 );
@@ -176,6 +177,18 @@ CREATE TABLE `hostel` (
   FOREIGN KEY (student_id) REFERENCES `students`(id) ON DELETE CASCADE
 );
 
+-- 15. parents
+CREATE TABLE `parents` (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNIQUE NOT NULL,
+  student_id INT NOT NULL,
+  relation VARCHAR(50) NOT NULL DEFAULT 'Father',
+  phone VARCHAR(20) NULL,
+  occupation VARCHAR(100) NULL,
+  FOREIGN KEY (user_id) REFERENCES `users`(id) ON DELETE CASCADE,
+  FOREIGN KEY (student_id) REFERENCES `students`(id) ON DELETE CASCADE
+);
+
 
 -- ==========================================
 -- SEED DATA
@@ -192,12 +205,14 @@ INSERT INTO `institutions` (id, name) VALUES
 -- Admin: admin@modern.edu / admin123 -> $2a$10$oCNPF6F6Lgp5FJe0jU/Wl.vp3ZEcjuxEgQkerxfP.oYJpzADf91Ci
 -- Teacher: teacher@modern.edu / teacher123 -> $2a$10$UWAuZ.kyJK2aBEoqHINdMeOBCQbjk7gCXvNJqEE5x6HKs7ag5RfJe
 -- Student: student@modern.edu / student123 -> $2a$10$zaKzCj7mh.eja4OpjJiFdOfU260IhxCDfAIq3BX4aCdRCKwLVu4Hm
+-- Parent: parent@modern.edu / parent123 -> $2a$10$zaKzCj7mh.eja4OpjJiFdOfU260IhxCDfAIq3BX4aCdRCKwLVu4Hm
 INSERT INTO `users` (id, name, email, password, role, institution_id) VALUES
 (1, 'Admin Principal', 'admin@modern.edu', '$2a$10$oCNPF6F6Lgp5FJe0jU/Wl.vp3ZEcjuxEgQkerxfP.oYJpzADf91Ci', 'admin', 1),
 (2, 'Suresh Kumar', 'teacher@modern.edu', '$2a$10$UWAuZ.kyJK2aBEoqHINdMeOBCQbjk7gCXvNJqEE5x6HKs7ag5RfJe', 'teacher', 1),
 (3, 'Aarav Sharma', 'student@modern.edu', '$2a$10$zaKzCj7mh.eja4OpjJiFdOfU260IhxCDfAIq3BX4aCdRCKwLVu4Hm', 'student', 1),
 (4, 'Priya Verma', 'priya.teacher@modern.edu', '$2a$10$UWAuZ.kyJK2aBEoqHINdMeOBCQbjk7gCXvNJqEE5x6HKs7ag5RfJe', 'teacher', 2),
-(5, 'Rahul Choudhary', 'rahul.student@modern.edu', '$2a$10$zaKzCj7mh.eja4OpjJiFdOfU260IhxCDfAIq3BX4aCdRCKwLVu4Hm', 'student', 2);
+(5, 'Rahul Choudhary', 'rahul.student@modern.edu', '$2a$10$zaKzCj7mh.eja4OpjJiFdOfU260IhxCDfAIq3BX4aCdRCKwLVu4Hm', 'student', 2),
+(6, 'Rajesh Sharma', 'parent@modern.edu', '$2a$10$zaKzCj7mh.eja4OpjJiFdOfU260IhxCDfAIq3BX4aCdRCKwLVu4Hm', 'parent', 1);
 
 -- Teachers
 INSERT INTO `teachers` (id, user_id, subject, assigned_classes) VALUES
@@ -208,6 +223,10 @@ INSERT INTO `teachers` (id, user_id, subject, assigned_classes) VALUES
 INSERT INTO `students` (id, user_id, roll_no, class, section, dob, father_name, address, phone, photo_url) VALUES
 (1, 3, '24', '11th', 'A', '2009-08-14', 'Rajesh Sharma', '120, Ganesh Colony, Kuchaman City, Rajasthan', '+91 9876543210', 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=250&auto=format&fit=crop'),
 (2, 5, '12', '11th', 'B', '2009-05-20', 'Mohan Choudhary', '45, Main Market, Kuchaman City, Rajasthan', '+91 9988776655', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=250&auto=format&fit=crop');
+
+-- Parents
+INSERT INTO `parents` (id, user_id, student_id, relation, phone, occupation) VALUES
+(1, 6, 1, 'Father', '+91 98765 00123', 'Civil Engineer');
 
 -- Attendance
 INSERT INTO `attendance` (student_id, date, status, subject, marked_by) VALUES

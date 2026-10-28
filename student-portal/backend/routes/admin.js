@@ -24,6 +24,10 @@ router.post('/teachers', adminController.createTeacher);
 router.put('/teachers/:id', adminController.updateTeacher);
 router.delete('/teachers/:id', adminController.deleteTeacher);
 
+// Parent CRUD
+router.get('/parents', adminController.getParents);
+router.post('/parents', adminController.createParent);
+
 // Notices CRUD
 router.get('/notices', adminController.getNotices);
 router.post('/notices', adminController.createNotice);

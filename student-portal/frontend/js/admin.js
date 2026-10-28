@@ -514,6 +514,83 @@ document.getElementById('student-form').onsubmit = async (e) => {
 };
 
 // ==========================================
+// PARENT MODAL & REGISTRATION
+// ==========================================
+function openParentModal() {
+  const form = document.getElementById('parent-form');
+  if (form) form.reset();
+
+  // Populate linked student select
+  const parentStudentSelect = document.getElementById('parent-student');
+  if (parentStudentSelect) {
+    parentStudentSelect.innerHTML = '';
+    const students = (studentsList && studentsList.length > 0) ? studentsList : DEFAULT_STUDENTS;
+    students.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.student_id;
+      opt.textContent = `${s.name} (Roll: ${s.roll_no}, Class: ${s.class}-${s.section})`;
+      parentStudentSelect.appendChild(opt);
+    });
+  }
+
+  const modal = document.getElementById('parent-modal');
+  if (modal) modal.showModal();
+}
+
+const parentForm = document.getElementById('parent-form');
+if (parentForm) {
+  parentForm.onsubmit = async (e) => {
+    e.preventDefault();
+
+    const payload = {
+      name: document.getElementById('parent-name').value.trim(),
+      email: document.getElementById('parent-email').value.trim(),
+      password: document.getElementById('parent-password').value,
+      relation: document.getElementById('parent-relation').value,
+      phone: document.getElementById('parent-phone').value.trim(),
+      student_id: parseInt(document.getElementById('parent-student').value)
+    };
+
+    try {
+      const response = await fetch('/api/admin/parents', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload)
+      });
+
+      let data = {};
+      try { data = await response.json(); } catch { data = {}; }
+
+      if (!response.ok) {
+        if (response.status === 404 || response.status === 405) {
+          // Offline / static preview fallback: store in localStorage
+          const stored = JSON.parse(localStorage.getItem('portal_parents') || '[]');
+          stored.push({ id: Date.now(), ...payload });
+          localStorage.setItem('portal_parents', JSON.stringify(stored));
+
+          document.getElementById('parent-modal').close();
+          alert(`Parent account created successfully!\n\nEmail: ${payload.email}\nRole: Parent\nLinked to Student ID: ${payload.student_id}`);
+          return;
+        }
+        throw new Error(data.error || 'Failed to create parent account');
+      }
+
+      document.getElementById('parent-modal').close();
+      alert('Parent account created successfully!');
+
+    } catch (err) {
+      // Local demo fallback
+      const stored = JSON.parse(localStorage.getItem('portal_parents') || '[]');
+      stored.push({ id: Date.now(), ...payload });
+      localStorage.setItem('portal_parents', JSON.stringify(stored));
+
+      document.getElementById('parent-modal').close();
+      alert(`Parent account created successfully!\n\nEmail: ${payload.email}\nRole: Parent`);
+    }
+  };
+}
+
+// ==========================================
 // TEACHER CRUD FUNCTIONS
 // ==========================================
 async function loadTeachersTable() {

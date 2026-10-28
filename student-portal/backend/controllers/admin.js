@@ -531,6 +531,73 @@ const deleteFeeRecord = async (req, res) => {
   }
 };
 
+// ==========================================
+// PARENT CRUD
+// ==========================================
+const getParents = async (req, res) => {
+  try {
+    const [parents] = await db.query(`
+      SELECT p.id, p.user_id, p.student_id, p.relation, p.phone, p.occupation,
+             u.name, u.email,
+             s.roll_no as student_roll_no, s.class as student_class, s.section as student_section,
+             su.name as student_name
+      FROM parents p
+      JOIN users u ON p.user_id = u.id
+      JOIN students s ON p.student_id = s.id
+      JOIN users su ON s.user_id = su.id
+      ORDER BY u.name
+    `);
+    return res.json(parents);
+  } catch (error) {
+    console.error('Error fetching parents:', error);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+};
+
+const createParent = async (req, res) => {
+  const { name, email, password, relation, phone, occupation, student_id } = req.body;
+
+  if (!name || !email || !password || !student_id) {
+    return res.status(400).json({ error: 'Name, email, password, and linked student are required.' });
+  }
+
+  const conn = await db.getConnection();
+  try {
+    await conn.beginTransaction();
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 1. Create user with role 'parent'
+    const [userResult] = await conn.query(
+      'INSERT INTO users (name, email, password, role, institution_id) VALUES (?, ?, ?, ?, ?)',
+      [name, email, hashedPassword, 'parent', req.user.institution_id || 1]
+    );
+    const userId = userResult.insertId;
+
+    // 2. Create parent record linked to student
+    const [parentResult] = await conn.query(
+      'INSERT INTO parents (user_id, student_id, relation, phone, occupation) VALUES (?, ?, ?, ?, ?)',
+      [userId, student_id, relation || 'Father', phone || null, occupation || null]
+    );
+
+    await conn.commit();
+    return res.status(201).json({
+      message: 'Parent account created successfully.',
+      parent_id: parentResult.insertId,
+      user_id: userId
+    });
+  } catch (error) {
+    await conn.rollback();
+    console.error('Error creating parent:', error);
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ error: 'Email already exists.' });
+    }
+    return res.status(500).json({ error: 'Internal server error.' });
+  } finally {
+    conn.release();
+  }
+};
+
 module.exports = {
   getDashboardStats,
   getInstitutions,
@@ -542,6 +609,8 @@ module.exports = {
   createTeacher,
   updateTeacher,
   deleteTeacher,
+  getParents,
+  createParent,
   getNotices,
   createNotice,
   updateNotice,

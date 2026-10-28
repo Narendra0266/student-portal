@@ -182,9 +182,14 @@
                 <option value="3">Modern Girls College</option>
               </select>
             </div>
-            <button onclick="openStudentModal()" class="px-4 py-2 bg-navy hover:bg-navy-light text-white dark:bg-gold dark:text-navy dark:hover:bg-gold-light font-bold rounded-lg text-xs transition-colors cursor-pointer">
-              <i class="fa-solid fa-plus mr-1"></i> Register Student
-            </button>
+            <div class="flex items-center gap-2">
+              <button onclick="openStudentModal()" class="px-4 py-2 bg-navy hover:bg-navy-light text-white dark:bg-gold dark:text-navy dark:hover:bg-gold-light font-bold rounded-lg text-xs transition-colors cursor-pointer">
+                <i class="fa-solid fa-plus mr-1"></i> Register Student
+              </button>
+              <button onclick="openParentModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-lg text-xs transition-colors cursor-pointer border border-slate-700">
+                <i class="fa-solid fa-user-group mr-1"></i> Add Parent
+              </button>
+            </div>
           </div>
 
           <div class="overflow-x-auto">
@@ -427,6 +432,53 @@
         </div>
         <button type="submit" class="w-full py-2.5 bg-navy hover:bg-navy-light text-white dark:bg-gold dark:text-navy dark:hover:bg-gold-light font-bold rounded-lg transition-colors cursor-pointer mt-4">
           Save Student Info
+        </button>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Parent Dialog -->
+  <dialog id="parent-modal" closedby="any" class="bg-transparent backdrop:bg-slate-900/60 backdrop:backdrop-blur-sm p-4 w-full max-w-lg focus:outline-none">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+      <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-navy text-white">
+        <h3 id="parent-modal-title" class="font-bold text-lg">Add Parent Account</h3>
+        <button onclick="document.getElementById('parent-modal').close()" class="text-slate-300 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form id="parent-form" class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Parent Full Name</label>
+          <input type="text" id="parent-name" placeholder="e.g. Dr. Devilal dadarwal" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Parent Email (Login Email)</label>
+          <input type="email" id="parent-email" placeholder="e.g. parent@modern.edu" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Login Password</label>
+          <input type="password" id="parent-password" placeholder="••••••••" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Relationship</label>
+            <select id="parent-relation" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+              <option value="Father" selected>Father</option>
+              <option value="Mother">Mother</option>
+              <option value="Guardian">Guardian</option>
+            </select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-slate-500">Phone</label>
+            <input type="text" id="parent-phone" placeholder="e.g. 8107212072" class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+          </div>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-slate-500">Link to Student (Child)</label>
+          <select id="parent-student" required class="w-full py-2 px-3 border rounded-lg text-sm dark:bg-slate-800">
+            <!-- Populated dynamically with students -->
+          </select>
+        </div>
+        <button type="submit" class="w-full py-2.5 bg-navy hover:bg-navy-light text-white dark:bg-gold dark:text-navy dark:hover:bg-gold-light font-bold rounded-lg transition-colors cursor-pointer mt-4">
+          Save Parent Account
         </button>
       </form>
     </div>
