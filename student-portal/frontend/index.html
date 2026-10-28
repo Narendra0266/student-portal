@@ -188,19 +188,9 @@
 
         <!-- Footer Links -->
         <div
-          class="pt-6 border-t border-slate-200 dark:border-slate-700/50 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 font-medium gap-4">
+          class="pt-6 border-t border-slate-200 dark:border-slate-700/50 flex justify-between items-center text-xs text-slate-500 font-medium">
           <p>© 2026 Modern Group</p>
-          <div class="flex flex-wrap justify-center gap-3">
-            <button onclick="fillDemo('student')"
-              class="hover:text-navy dark:hover:text-gold transition-colors cursor-pointer bg-slate-200/50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg">Demo
-              Student</button>
-            <button onclick="fillDemo('parent')"
-              class="hover:text-navy dark:hover:text-gold transition-colors cursor-pointer bg-slate-200/50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg">Demo
-              Parent</button>
-            <button onclick="fillDemo('teacher')"
-              class="hover:text-navy dark:hover:text-gold transition-colors cursor-pointer bg-slate-200/50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg">Demo
-              Staff</button>
-          </div>
+          <p class="text-slate-400">All Rights Reserved</p>
         </div>
       </div>
 
@@ -237,28 +227,7 @@
     }
 
 
-    // Demo logins filler
-    function fillDemo(role) {
-      const emailField = document.getElementById('email');
-      const passField = document.getElementById('password');
-      if (role === 'student') {
-        switchLoginTab('student');
-        emailField.value = 'student@modern.edu';
-        passField.value = 'student123';
-      } else if (role === 'parent') {
-        switchLoginTab('parent');
-        emailField.value = 'parent@modern.edu';
-        passField.value = 'parent123';
-      } else if (role === 'teacher') {
-        switchLoginTab('staff');
-        emailField.value = 'teacher@modern.edu';
-        passField.value = 'teacher123';
-      } else if (role === 'admin') {
-        switchLoginTab('staff');
-        emailField.value = 'admin@modern.edu';
-        passField.value = 'admin123';
-      }
-    }
+
   </script>
 </body>
 
