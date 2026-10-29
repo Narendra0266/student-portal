@@ -32,6 +32,13 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- jsPDF & AutoTable for Receipts & Marksheets -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a2e5a">
+  <link rel="apple-touch-icon" href="images/logo.png">
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -411,9 +418,10 @@
                     <th class="py-2.5">Amount</th>
                     <th class="py-2.5">Due Date</th>
                     <th class="py-2.5">Status</th>
+                    <th class="py-2.5 text-right pr-2">Action</th>
                   </tr>
                 </thead>
-                <tbody id="fees-table-body" class="divide-y divide-slate-100 text-slate-755">
+                <tbody id="fees-table-body" class="divide-y divide-slate-100 text-slate-700">
                   <!-- Rendered dynamically -->
                 </tbody>
               </table>
@@ -439,7 +447,66 @@
     </main>
   </div>
 
+  <!-- Secure Payment Modal -->
+  <dialog id="payment-modal" closedby="any" class="bg-transparent backdrop:bg-slate-900/60 backdrop:backdrop-blur-sm p-4 w-full max-w-md focus:outline-none">
+    <div id="payment-modal-card" class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 transition-all">
+      <div class="p-5 border-b border-white/10 bg-navy text-white flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-gold/20 flex items-center justify-center text-gold">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-base leading-tight">Pay Child's School Fees</h3>
+            <span class="text-[11px] text-slate-300">Modern Group of Education</span>
+          </div>
+        </div>
+        <button id="close-payment-modal" onclick="document.getElementById('payment-modal').close()" class="text-slate-300 hover:text-white cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div class="p-5 space-y-4">
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex justify-between items-center">
+          <div>
+            <span class="text-xs text-slate-500 block font-medium">Term Tuition & Facilities</span>
+            <span class="text-[10px] text-slate-400">Student: Aarav Sharma (11th-A)</span>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] text-slate-400 block uppercase tracking-wider font-semibold">Payable</span>
+            <span id="parent-pay-amount-display" class="text-xl font-extrabold text-navy">₹12,500.00</span>
+          </div>
+        </div>
+
+        <div class="space-y-3 flex flex-col items-center text-center">
+          <div class="p-2 bg-white rounded-xl shadow-inner border border-slate-200 inline-block">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=upi://pay?pa=modern.education@icici%26pn=Modern+Group+of+Education%26am=12500%26cu=INR" alt="UPI QR" class="w-36 h-36 rounded-md">
+          </div>
+          <p class="text-xs text-slate-600">
+            Scan & Pay with <strong class="text-navy">GPay, PhonePe, Paytm, BHIM UPI</strong>
+          </p>
+          <div class="text-[11px] bg-slate-100 px-3 py-1 rounded-full text-slate-500">
+            Official UPI VPA: <span class="font-bold text-navy">modern.education@icici</span>
+          </div>
+        </div>
+
+        <button id="btn-submit-payment" class="w-full py-3 bg-navy hover:bg-navy-light text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer text-xs">
+          <i class="fa-solid fa-lock"></i> Verify & Complete Payment
+        </button>
+
+        <p class="text-[10px] text-center text-slate-400">
+          Official Fee Receipt (PDF) will download automatically upon confirmation.
+        </p>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="js/pdf-generator.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/parent.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>

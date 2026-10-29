@@ -7,6 +7,12 @@ if (!session) {
 
 const { token, user } = session || {};
 let charts = {}; // references to chart.js instances
+let currentStudentProfile = null;
+let currentStudentResults = null;
+let currentStudentFees = null;
+let currentSelectedInvoice = null;
+let leafletBusMap = null;
+let busMarker = null;
 
 // ===== FALLBACK DATA (used when backend API is unreachable on static Vercel) =====
 
@@ -196,6 +202,11 @@ function setupNavigation() {
       const label = tab.textContent.trim();
       title.textContent = `${label} Panel`;
 
+      // If opening transport tab, initialize or recenter map
+      if (target === 'transport') {
+        setTimeout(initOrRecenterBusMap, 200);
+      }
+
       // Close mobile drawer on selection
       toggleMobileSidebar(false);
     });
@@ -235,6 +246,7 @@ async function loadAllData() {
   // 1. Profile Details
   const profileData = await safeFetch('/api/students/profile', { headers });
   const profile = profileData || DEFAULT_STUDENT_PROFILE;
+  currentStudentProfile = profile;
   renderProfile(profile);
 
   // 2. Attendance Details
@@ -243,11 +255,13 @@ async function loadAllData() {
 
   // 3. Results / Marks
   const resultsData = await safeFetch('/api/students/results', { headers });
-  renderResults(resultsData || DEFAULT_STUDENT_RESULTS);
+  currentStudentResults = resultsData || DEFAULT_STUDENT_RESULTS;
+  renderResults(currentStudentResults);
 
   // 4. Fees Status
   const feesData = await safeFetch('/api/students/fees', { headers });
-  renderFees(feesData || DEFAULT_STUDENT_FEES);
+  currentStudentFees = feesData || DEFAULT_STUDENT_FEES;
+  renderFees(currentStudentFees);
 
   // 5. Timetable Schedule
   const timetableData = await safeFetch('/api/students/timetable', { headers });
@@ -302,6 +316,13 @@ function renderProfile(profile) {
   const formattedDob = dobDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   document.getElementById('id-dob').textContent = formattedDob;
   document.getElementById('id-phone').textContent = profile.phone;
+
+  // Dynamic QR Code on ID card
+  const qrEl = document.getElementById('id-qr-code');
+  if (qrEl) {
+    const qrData = encodeURIComponent(`MODERN GROUP STUDENT ID\nName: ${profile.name}\nRoll: ${profile.roll_no}\nClass: ${profile.class}-${profile.section}\nSchool: ${profile.institution_name || 'Modern Senior Secondary School'}\nStatus: VERIFIED ENROLLED`);
+    qrEl.src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${qrData}`;
+  }
 
   // Personal details list
   document.getElementById('prof-name').textContent = profile.name;
@@ -501,14 +522,24 @@ function renderResults(data) {
 
 // 4. Fees rendering
 function renderFees(data) {
+  currentStudentFees = data;
   document.getElementById('fee-outstanding-amt').textContent = `${data.currency}${data.outstanding.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
   document.getElementById('fee-paid-amt').textContent = `${data.currency}${data.paidTotal.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+
+  const payBtn = document.getElementById('btn-pay-fees');
+  if (payBtn) {
+    if (data.outstanding > 0) {
+      payBtn.classList.remove('hidden');
+    } else {
+      payBtn.classList.add('hidden');
+    }
+  }
 
   const tableBody = document.getElementById('fees-table-body');
   tableBody.innerHTML = '';
 
   if (data.invoices.length === 0) {
-    tableBody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-500">No transactions recorded</td></tr>';
+    tableBody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-slate-500">No transactions recorded</td></tr>';
     return;
   }
 
@@ -524,6 +555,14 @@ function renderFees(data) {
     // Format Date
     const dueStr = new Date(inv.due_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
+    const actionHtml = isPaid
+      ? `<button onclick="triggerFeeReceiptDownload(${inv.id})" class="px-2.5 py-1 bg-green-500/10 hover:bg-green-500/20 text-green-700 dark:text-green-400 font-bold rounded-lg text-xs flex items-center gap-1.5 transition-colors cursor-pointer ml-auto">
+          <i class="fa-solid fa-file-arrow-down text-xs"></i> Receipt
+        </button>`
+      : `<button onclick="openPaymentModal(${inv.id}, ${inv.amount})" class="px-3 py-1 bg-gold hover:bg-gold-dark text-navy font-bold rounded-lg text-xs flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer ml-auto">
+          <i class="fa-solid fa-credit-card text-xs"></i> Pay Now
+        </button>`;
+
     row.innerHTML = `
       <td class="py-3 font-semibold text-slate-800 dark:text-slate-200">${inv.receipt_no || `INV-${inv.id}`}</td>
       <td class="py-3 text-slate-600 dark:text-slate-300">Term Tuition / Board Fees</td>
@@ -531,6 +570,9 @@ function renderFees(data) {
       <td class="py-3 text-slate-500 text-xs">${dueStr}</td>
       <td class="py-3">
         <span class="px-2 py-0.5 rounded text-xs font-bold uppercase ${badgeColor}">${inv.status}</span>
+      </td>
+      <td class="py-3 text-right">
+        ${actionHtml}
       </td>
     `;
     tableBody.appendChild(row);
@@ -863,3 +905,202 @@ function renderHostel(hostel) {
     </div>
   `;
 }
+
+// ================= NEW UPGRADES (PDF, UPI PAYMENT, MAP) =================
+
+// Trigger Download of Official Fee Receipt (PDF)
+function triggerFeeReceiptDownload(invoiceId) {
+  const prof = currentStudentProfile || DEFAULT_STUDENT_PROFILE;
+  const fees = currentStudentFees || DEFAULT_STUDENT_FEES;
+  const inv = (fees.invoices || []).find(i => i.id === invoiceId) || {
+    id: invoiceId,
+    receipt_no: `REC-2026-${invoiceId}`,
+    amount: 12500,
+    status: 'paid'
+  };
+  downloadFeeReceiptPDF(inv, prof);
+}
+
+// Trigger Download of Official Term Report Card (PDF)
+function triggerStudentReportCardDownload() {
+  const prof = currentStudentProfile || DEFAULT_STUDENT_PROFILE;
+  const results = currentStudentResults || DEFAULT_STUDENT_RESULTS;
+  const examSelect = document.getElementById('exam-selector');
+  const examTitle = examSelect ? examSelect.options[examSelect.selectedIndex]?.text : 'Term Examination 2026-27';
+  const examKey = examSelect ? examSelect.value : (results.terms ? results.terms[0]?.id : 'term1');
+  const termObj = (results.terms || []).find(t => t.id === examKey) || results.terms?.[0];
+  const list = termObj ? termObj.subjects : [];
+  downloadReportCardPDF(list, prof, examTitle);
+}
+
+// Print / Save ID Card
+function printStudentIDCard() {
+  window.print();
+}
+
+// Payment Modal Controller
+function openPaymentModal(invoiceId, amount) {
+  const fees = currentStudentFees || DEFAULT_STUDENT_FEES;
+  currentSelectedInvoice = (fees.invoices || []).find(i => i.id === invoiceId) || {
+    id: invoiceId,
+    amount: amount || 12500,
+    receipt_no: `INV-2024-00${invoiceId}`
+  };
+  const amt = parseFloat(currentSelectedInvoice.amount || 12500);
+  document.getElementById('pay-amount-display').textContent = `₹${amt.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
+  document.getElementById('btn-pay-amount').textContent = `₹${amt.toLocaleString('en-IN')}`;
+  document.getElementById('pay-invoice-sub').textContent = currentSelectedInvoice.receipt_no || `INV-${invoiceId}`;
+
+  // Update dynamic QR Code
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(`upi://pay?pa=modern.education@icici&pn=Modern+Group+of+Education&am=${amt}&cu=INR`)}`;
+  document.getElementById('upi-qr-image').src = qrUrl;
+
+  const modal = document.getElementById('payment-modal');
+  if (modal) {
+    if (typeof modal.showModal === 'function') modal.showModal();
+    else modal.classList.remove('hidden');
+  }
+}
+
+function closePaymentModal() {
+  const modal = document.getElementById('payment-modal');
+  if (modal) {
+    if (typeof modal.close === 'function') modal.close();
+    else modal.classList.add('hidden');
+  }
+}
+
+function switchPayMethod(method) {
+  const upiTab = document.getElementById('pay-tab-upi');
+  const cardTab = document.getElementById('pay-tab-card');
+  const upiView = document.getElementById('pay-view-upi');
+  const cardView = document.getElementById('pay-view-card');
+
+  if (method === 'upi') {
+    upiTab.className = "p-2.5 rounded-lg border-2 border-navy dark:border-gold bg-navy/5 dark:bg-gold/10 text-navy dark:text-gold font-bold flex items-center justify-center gap-1.5 cursor-pointer";
+    cardTab.className = "p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold flex items-center justify-center gap-1.5 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800";
+    upiView.classList.remove('hidden');
+    cardView.classList.add('hidden');
+  } else {
+    cardTab.className = "p-2.5 rounded-lg border-2 border-navy dark:border-gold bg-navy/5 dark:bg-gold/10 text-navy dark:text-gold font-bold flex items-center justify-center gap-1.5 cursor-pointer";
+    upiTab.className = "p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold flex items-center justify-center gap-1.5 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800";
+    cardView.classList.remove('hidden');
+    upiView.classList.add('hidden');
+  }
+}
+
+function executeSimulatedPayment() {
+  const btn = document.getElementById('btn-confirm-payment');
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Contacting Payment Gateway...';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    btn.innerHTML = '<i class="fa-solid fa-check text-green-400"></i> Payment Verified & Success!';
+    btn.classList.replace('bg-navy', 'bg-green-600');
+
+    // Update status in local fees state
+    if (currentSelectedInvoice && currentStudentFees) {
+      const inv = currentStudentFees.invoices.find(i => i.id === currentSelectedInvoice.id);
+      if (inv) {
+        inv.status = 'paid';
+        inv.receipt_no = `REC-2026-${String(Math.floor(100 + Math.random() * 900))}`;
+      }
+      currentStudentFees.paidTotal += parseFloat(currentSelectedInvoice.amount);
+      currentStudentFees.outstanding = Math.max(0, currentStudentFees.outstanding - parseFloat(currentSelectedInvoice.amount));
+    }
+
+    renderFees(currentStudentFees);
+
+    setTimeout(() => {
+      // Auto download receipt PDF
+      const paidInv = currentSelectedInvoice || { id: 4, amount: 12500, receipt_no: 'REC-2026-904' };
+      downloadFeeReceiptPDF(paidInv, currentStudentProfile || DEFAULT_STUDENT_PROFILE);
+
+      closePaymentModal();
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-lock"></i> Verify & Pay Fee';
+      btn.classList.replace('bg-green-600', 'bg-navy');
+    }, 1200);
+  }, 1000);
+}
+
+// Live GPS Bus Tracker (Kuchaman City coordinates)
+function initOrRecenterBusMap() {
+  const mapContainer = document.getElementById('transport-map');
+  if (!mapContainer || !window.L) return;
+
+  // Kuchaman City coordinates: ~27.1504° N, 75.0592° E
+  const schoolCoords = [27.1520, 75.0610];
+  const stopCoords = [27.1430, 75.0480];
+  const busStartCoords = [27.1400, 75.0420];
+
+  if (!leafletBusMap) {
+    leafletBusMap = L.map('transport-map').setView(schoolCoords, 14);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(leafletBusMap);
+
+    // School Marker
+    const schoolIcon = L.divIcon({
+      html: '<div style="background:#1a2e5a; color:#c9a227; padding:6px; border-radius:50%; border:2px solid #c9a227; text-align:center; font-size:14px; box-shadow:0 4px 10px rgba(0,0,0,0.3);"><i class="fa-solid fa-school"></i></div>',
+      className: '',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
+    });
+    L.marker(schoolCoords, { icon: schoolIcon }).addTo(leafletBusMap)
+      .bindPopup('<strong>Modern Group of Education</strong><br>Main Campus, Kuchaman City');
+
+    // Pickup Stop Marker
+    const stopIcon = L.divIcon({
+      html: '<div style="background:#0f172a; color:#38bdf8; padding:6px; border-radius:50%; border:2px solid #38bdf8; text-align:center; font-size:12px; box-shadow:0 4px 10px rgba(0,0,0,0.3);"><i class="fa-solid fa-location-pin"></i></div>',
+      className: '',
+      iconSize: [28, 28],
+      iconAnchor: [14, 14]
+    });
+    L.marker(stopCoords, { icon: stopIcon }).addTo(leafletBusMap)
+      .bindPopup('<strong>Pickup Stop: Ganesh Colony</strong><br>Boarding Time: 07:15 AM');
+
+    // Route line
+    const routeCoords = [
+      [27.1380, 75.0380],
+      [27.1400, 75.0420],
+      [27.1430, 75.0480],
+      [27.1480, 75.0540],
+      [27.1520, 75.0610]
+    ];
+    L.polyline(routeCoords, { color: '#c9a227', weight: 4, opacity: 0.8, dashArray: '8, 8' }).addTo(leafletBusMap);
+
+    // Animated Bus Marker
+    const busIcon = L.divIcon({
+      html: '<div style="background:#f59e0b; color:#ffffff; padding:7px; border-radius:50%; border:2px solid #ffffff; text-align:center; font-size:13px; box-shadow:0 0 14px rgba(245,158,11,0.9);"><i class="fa-solid fa-bus"></i></div>',
+      className: '',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
+    });
+    busMarker = L.marker(busStartCoords, { icon: busIcon }).addTo(leafletBusMap)
+      .bindPopup('<strong>Bus #MH-12-AB-3456</strong><br>Driver: Ramesh Ji (+91 98010 12345)<br>Status: In Transit');
+
+    // Animate bus position along points
+    let step = 0;
+    setInterval(() => {
+      if (!busMarker) return;
+      step = (step + 1) % routeCoords.length;
+      busMarker.setLatLng(routeCoords[step]);
+    }, 4000);
+  } else {
+    leafletBusMap.invalidateSize();
+    leafletBusMap.setView(schoolCoords, 14);
+  }
+}
+
+// Expose globals for HTML inline onclick
+window.triggerFeeReceiptDownload = triggerFeeReceiptDownload;
+window.triggerStudentReportCardDownload = triggerStudentReportCardDownload;
+window.printStudentIDCard = printStudentIDCard;
+window.openPaymentModal = openPaymentModal;
+window.closePaymentModal = closePaymentModal;
+window.switchPayMethod = switchPayMethod;
+window.executeSimulatedPayment = executeSimulatedPayment;
+window.initOrRecenterBusMap = initOrRecenterBusMap;
