@@ -71,6 +71,9 @@ let studentsList = [];
 document.addEventListener('DOMContentLoaded', () => {
   if (!session) return;
 
+  const nameEl = document.getElementById('user-display-name');
+  if (nameEl && user && user.name) nameEl.textContent = user.name;
+
   setupNavigation();
   setupMobileSidebar();
   setupFeeStatusFieldsToggle();

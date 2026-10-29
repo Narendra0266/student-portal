@@ -40,12 +40,13 @@ document.addEventListener('DOMContentLoaded', () => {
               'student@modern.edu': { name: 'Aarav Sharma', role: 'student', pass: 'student123' },
               'parent@modern.edu': { name: 'Rajesh Sharma', role: 'parent', pass: 'parent123' },
               'teacher@modern.edu': { name: 'Dr. R. Prasad', role: 'teacher', pass: 'teacher123' },
-              'admin@modern.edu': { name: 'System Administrator', role: 'admin', pass: 'admin123' }
+              'devilal.dadarwal@modern.edu': { name: 'Devilal Dadarwal', role: 'admin', pass: 'dadarwaldl@0266' },
+              'admin@modern.edu': { name: 'Devilal Dadarwal', role: 'admin', pass: 'dadarwaldl@0266' }
             };
 
             // Also check dynamically added parents from Admin Panel
             const storedParents = JSON.parse(localStorage.getItem('portal_parents') || '[]');
-            const customParent = storedParents.find(p => p.email === email && p.password === password);
+            const customParent = storedParents.find(p => p.email && p.email.toLowerCase() === email.toLowerCase() && p.password === password);
             if (customParent) {
               const mockUser = {
                 id: customParent.id || 6,
@@ -60,7 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
               return;
             }
 
-            const demoAccount = demoUsers[email];
+            const lookupEmail = email.toLowerCase();
+            const demoAccount = demoUsers[lookupEmail] || demoUsers[email];
             if (demoAccount && password === demoAccount.pass) {
               const mockUser = {
                 id: 1,

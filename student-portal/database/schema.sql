@@ -202,12 +202,12 @@ INSERT INTO `institutions` (id, name) VALUES
 
 -- Users
 -- Password for all is matching their role:
--- Admin: admin@modern.edu / admin123 -> $2a$10$oCNPF6F6Lgp5FJe0jU/Wl.vp3ZEcjuxEgQkerxfP.oYJpzADf91Ci
+-- Admin: devilal.dadarwal@modern.edu / dadarwaldl@0266 -> $2a$10$SeqsXE7SIDm5Lh2cerAFOe0.kFjiDOuWB/PlXTsTzD7Lbul1ZxKLO
 -- Teacher: teacher@modern.edu / teacher123 -> $2a$10$UWAuZ.kyJK2aBEoqHINdMeOBCQbjk7gCXvNJqEE5x6HKs7ag5RfJe
 -- Student: student@modern.edu / student123 -> $2a$10$zaKzCj7mh.eja4OpjJiFdOfU260IhxCDfAIq3BX4aCdRCKwLVu4Hm
 -- Parent: parent@modern.edu / parent123 -> $2a$10$zaKzCj7mh.eja4OpjJiFdOfU260IhxCDfAIq3BX4aCdRCKwLVu4Hm
 INSERT INTO `users` (id, name, email, password, role, institution_id) VALUES
-(1, 'Admin Principal', 'admin@modern.edu', '$2a$10$oCNPF6F6Lgp5FJe0jU/Wl.vp3ZEcjuxEgQkerxfP.oYJpzADf91Ci', 'admin', 1),
+(1, 'Devilal Dadarwal', 'devilal.dadarwal@modern.edu', '$2a$10$SeqsXE7SIDm5Lh2cerAFOe0.kFjiDOuWB/PlXTsTzD7Lbul1ZxKLO', 'admin', 1),
 (2, 'Suresh Kumar', 'teacher@modern.edu', '$2a$10$UWAuZ.kyJK2aBEoqHINdMeOBCQbjk7gCXvNJqEE5x6HKs7ag5RfJe', 'teacher', 1),
 (3, 'Aarav Sharma', 'student@modern.edu', '$2a$10$zaKzCj7mh.eja4OpjJiFdOfU260IhxCDfAIq3BX4aCdRCKwLVu4Hm', 'student', 1),
 (4, 'Priya Verma', 'priya.teacher@modern.edu', '$2a$10$UWAuZ.kyJK2aBEoqHINdMeOBCQbjk7gCXvNJqEE5x6HKs7ag5RfJe', 'teacher', 2),

@@ -107,7 +107,7 @@ The database seeds include pre-configured accounts (passwords are hashed with bc
 
 | Role | Email | Password | Dashboard Features |
 | :--- | :--- | :--- | :--- |
-| **Admin** | `admin@modern.edu` | `admin123` | Global Stats, CRUD for Students/Teachers/Notices/Timetable/Fees |
+| **Admin** | `devilal.dadarwal@modern.edu` | `dadarwaldl@0266` | Global Stats, CRUD for Students/Teachers/Notices/Timetable/Fees |
 | **Teacher** | `teacher@modern.edu` | `teacher123` | Class Roster, Bulk Attendance marking, Student Gradesheet upload, Post Homework |
 | **Student** | `student@modern.edu` | `student123` | 10 Tabs (Profile, Attendance, Results, Fees, Timetable, Notices, Homework submission, Library, Transport, Hostel) |
 

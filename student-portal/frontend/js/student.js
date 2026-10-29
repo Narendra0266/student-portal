@@ -115,8 +115,8 @@ const DEFAULT_STUDENT_TIMETABLE = {
 };
 
 const DEFAULT_STUDENT_NOTICES = [
-  { id: 1, title: 'Annual Sports Day Announcement', content: 'Annual Sports Day will be held on 15th November. All students are expected to participate.', date: '2024-10-20', category: 'Event' },
-  { id: 2, title: 'Mid-Term Exam Schedule Released', content: 'Mid-term examinations will commence from 1st November. Time-table is available on the notice board.', date: '2024-10-18', category: 'Academics' }
+  { id: 1, title: 'Annual Sports Day Announcement', content: 'Annual Sports Day will be held on 15th November. All students are expected to participate.', created_at: '2024-10-20', category: 'Events' },
+  { id: 2, title: 'Mid-Term Exam Schedule Released', content: 'Mid-term examinations will commence from 1st November. Time-table is available on the notice board.', created_at: '2024-10-18', category: 'Academics' }
 ];
 
 const DEFAULT_STUDENT_ASSIGNMENTS = [
@@ -126,15 +126,15 @@ const DEFAULT_STUDENT_ASSIGNMENTS = [
 ];
 
 const DEFAULT_STUDENT_LIBRARY = [
-  { id: 1, book_title: 'Concepts of Physics Vol. 1', author: 'H.C. Verma', issued_date: '2024-10-01', due_date: '2024-10-31', status: 'issued' },
-  { id: 2, book_title: 'Higher Mathematics',          author: 'S.L. Loney',  issued_date: '2024-09-15', due_date: '2024-10-15', status: 'returned' }
+  { id: 1, book_name: 'Concepts of Physics Vol. 1', author: 'H.C. Verma', issue_date: '2024-10-01', return_date: '2024-10-31', status: 'issued' },
+  { id: 2, book_name: 'Higher Mathematics',          author: 'S.L. Loney',  issue_date: '2024-09-15', return_date: '2024-10-15', status: 'returned' }
 ];
 
 const DEFAULT_STUDENT_TRANSPORT = {
-  route: 'Route 4 - Kuchaman City North',
+  route_name: 'Route 4 - Kuchaman City North',
+  stop_name: 'Ganesh Colony',
+  timing: '07:15:00',
   bus_no: 'MH-12-AB-3456',
-  pickup_time: '7:15 AM',
-  drop_time: '4:30 PM',
   driver_name: 'Ramesh Ji',
   driver_phone: '+91 98010 12345'
 };
@@ -830,7 +830,7 @@ function renderTransport(transport) {
         <span class="font-bold text-slate-800 dark:text-slate-100">${transport.timing.substring(0, 5)} AM</span>
       </div>
       <div class="col-span-2">
-        <span class="text-slate-450 dark:text-slate-400 block text-xs">Pickup Stop Stop</span>
+        <span class="text-slate-400 dark:text-slate-400 block text-xs">Pickup Stop</span>
         <span class="font-bold text-slate-800 dark:text-slate-100">${transport.stop_name}</span>
       </div>
     </div>
